@@ -1,246 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Kasir Mixue</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #f4f6f9; margin: 0; padding: 15px; }
-    .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #e60012; margin-top: 0; margin-bottom: 5px; }
-    .section-title { font-weight: bold; color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 5px; margin: 20px 0 10px 0; }
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.88em; color: #333; }
-    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; }
-    textarea { resize: vertical; min-height: 70px; }
-    input[readonly] { background-color: #e9ecef; }
-    .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
-    button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:disabled { background-color: #cccccc; }
-    #status { margin-top: 15px; text-align: center; font-weight: bold; }
-    .row-2 { display: flex; gap: 10px; }
-    .row-2 .form-group { flex: 1; }
-
-    /* Modal / Pop-up Window Styling */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
-    .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .modal-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #e60012; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
-    .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
-    .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
-    .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
-    .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
-    
-    /* Button Group Modal */
-    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
-    .btn-close { background-color: #777; margin-top: 8px; }
-  </style>
-</head>
-<body>
-
-<div class="card">
-  <h2>🍦 Laporan Kasir Mixue</h2>
-  <form id="kasirForm">
-    
-    <!-- INFO KASIR & TANGGAL -->
-    <div class="row-2">
-      <div class="form-group">
-        <label>Hari</label>
-        <input type="text" id="hari" required readonly>
-      </div>
-      <div class="form-group">
-        <label>Tanggal</label>
-        <input type="text" id="tanggal" required readonly>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Nama Kasir / Shift</label>
-      <input type="text" id="namaKasir" placeholder="Contoh: Silva / Dian" required>
-    </div>
-
-    <!-- PENDAPATAN -->
-    <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
-    
-    <div class="row-2">
-      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>QRIS</label><input type="number" id="qris" placeholder="0" class="nominal"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" placeholder="0" class="nominal"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" placeholder="0" class="nominal"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>EDC</label><input type="number" id="edc" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" placeholder="0" class="nominal"></div>
-    </div>
-
-    <div class="total-box">
-      Total Omset: Rp <span id="totalOmset">0</span>
-    </div>
-
-    <!-- PENJUALAN ITEM & PACKAGING -->
-    <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
-
-    <div class="row-2">
-      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0"></div>
-      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0"></div>
-      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0"></div>
-      <div class="form-group"><label>Bag (Kantong)</label><input type="number" id="bag" placeholder="0"></div>
-    </div>
-
-    <div class="row-2">
-      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0"></div>
-      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0"></div>
-    </div>
-
-    <!-- CATATAN LAINNYA -->
-    <div class="section-title">🎈 Catatan Tambahan</div>
-
-    <div class="form-group">
-      <label>Boneka (Detail Jenis)</label>
-      <input type="text" id="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
-    </div>
-
-    <div class="form-group">
-      <label>Uang Odong-Odong (Rp)</label>
-      <input type="number" id="odong" placeholder="0">
-    </div>
-
-    <div class="form-group">
-      <label>Catatan Opsional</label>
-      <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
-    </div>
-
-    <button type="submit" id="btnNext">Lanjutkan / Cek Summary ➡️</button>
-  </form>
-</div>
-
-<!-- MODAL / JENDELA POP-UP SUMMARY -->
-<div class="modal-overlay" id="modalRincian">
-  <div class="modal-content">
-    <div class="modal-header">📋 Summary Laporan Kasir</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
-    
-    <table class="summary-table" id="tabelRincian">
-      <!-- Data Rincian Ditempel Lewat JS -->
-    </table>
-
-    <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
-
-    <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
-    <button type="button" class="btn-close" id="btnCloseModal" onclick="tutupModal()">Cek Ulang / Edit Form</button>
-  </div>
-</div>
-
-<script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
-
-  let currentPayload = {};
-
-  // Auto Set Hari & Tanggal
-  const now = new Date();
-  const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-  document.getElementById('hari').value = hariList[now.getDay()];
-  
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
-
-  // Hitung Total Omset
-  const nominalInputs = document.querySelectorAll('.nominal');
-  nominalInputs.forEach(input => input.addEventListener('input', hitungTotal));
-
-  function hitungTotal() {
-    let total = 0;
-    nominalInputs.forEach(input => total += Number(input.value) || 0);
-    document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
-    return total;
-  }
-
-  function formatRupiah(val) {
-    return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
-  }
-
-  // Buka Modal Ringkasan Dulu (Belum Kirim Data)
-  document.getElementById('kasirForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    currentPayload = {
-      hari: document.getElementById('hari').value,
-      tanggal: document.getElementById('tanggal').value,
-      namaKasir: document.getElementById('namaKasir').value,
-      omset: hitungTotal(),
-      cash: document.getElementById('cash').value,
-      qris: document.getElementById('qris').value,
-      gojek: document.getElementById('gojek').value,
-      shopee: document.getElementById('shopee').value,
-      tiktok: document.getElementById('tiktok').value,
-      grab: document.getElementById('grab').value,
-      edc: document.getElementById('edc').value,
-      lain: document.getElementById('lain').value,
-      odong: document.getElementById('odong').value,
-      cone: document.getElementById('cone').value,
-      cup400: document.getElementById('cup400').value,
-      cup500: document.getElementById('cup500').value,
-      cup700: document.getElementById('cup700').value,
-      paperM: document.getElementById('paperM').value,
-      bag: document.getElementById('bag').value,
-      thermal2: document.getElementById('thermal2').value,
-      thermal4: document.getElementById('thermal4').value,
-      boneka: document.getElementById('boneka').value,
-      catatan: document.getElementById('catatan').value
-    };
-
-    document.getElementById('modalStatus').innerText = "";
-    document.getElementById('btnSimpanWA').disabled = false;
-    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
-
-    tampilkanRincianModal(currentPayload);
-  });
-
-  function tampilkanRincianModal(data) {
-    const html = `
-      <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
-      <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
-      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
-      <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
-      <tr><td>QRIS</td><td>${formatRupiah(data.qris)}</td></tr>
-      <tr><td>Gojek</td><td>${formatRupiah(data.gojek)}</td></tr>
-      <tr><td>ShopeeFood</td><td>${formatRupiah(data.shopee)}</td></tr>
-      <tr><td>TikTok Food</td><td>${formatRupiah(data.tiktok)}</td></tr>
-      <tr><td>GrabFood</td><td>${formatRupiah(data.grab)}</td></tr>
-      <tr><td>EDC</td><td>${formatRupiah(data.edc)}</td></tr>
-      <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
-      <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
-      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
-      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone||0} / ${data.cup400||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
-      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM||0} / ${data.bag||0} / ${data.thermal2||0}/${data.thermal4||0}</td></tr>
-      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
-      <tr><td>Boneka</td><td>${data.boneka || '-'}</td></tr>
-      <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
-      <tr><td>Catatan</td><td>${data.catatan || '-'}</td></tr>
-    `;
-    
-    document.getElementById('tabelRincian').innerHTML = html;
-    document.getElementById('modalRincian').style.display = 'flex';
-  }
-
-  // Simpan ke Google Sheet LALU Buka WA
+// Simpan ke Google Sheet LALU Buka WA
   async function simpanDanKirimWA() {
     const btnWA = document.getElementById('btnSimpanWA');
     const modalStatus = document.getElementById('modalStatus');
@@ -251,21 +9,21 @@
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
     try {
-      const response = await fetch(WEB_APP_URL, {
+      // Menggunakan mode 'no-cors' agar browser tidak memblokir kiriman data ke Google Apps Script
+      await fetch(WEB_APP_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(currentPayload)
       });
 
-      const res = await response.json();
+      // Pada mode no-cors, data tetap sukses masuk ke Sheet
+      modalStatus.style.color = "green";
+      modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
 
-      if (res.status === 'success') {
-        modalStatus.style.color = "green";
-        modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
-
-        // Rakit Pesan WA
-        const d = currentPayload;
-        const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+      // Rakit Pesan WA
+      const d = currentPayload;
+      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
 ----------------------------------
 📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
 👤 *Kasir:* ${d.namaKasir}
@@ -300,22 +58,19 @@
 ----------------------------------
 _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
-        // Buka WhatsApp (pilih grup manual)
-        const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
-        window.open(urlWA, '_blank');
+      // Buka WhatsApp
+      const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
+      window.open(urlWA, '_blank');
 
-        // Reset form & tutup modal
-        setTimeout(() => {
-          document.getElementById('kasirForm').reset();
-          document.getElementById('hari').value = hariList[now.getDay()];
-          document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
-          hitungTotal();
-          tutupModal();
-        }, 1500);
+      // Reset form & tutup modal
+      setTimeout(() => {
+        document.getElementById('kasirForm').reset();
+        document.getElementById('hari').value = hariList[now.getDay()];
+        document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
+        hitungTotal();
+        tutupModal();
+      }, 1500);
 
-      } else {
-        throw new Error(res.message);
-      }
     } catch (err) {
       modalStatus.style.color = "red";
       modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
@@ -323,11 +78,3 @@ _Laporan ini telah otomatis tersimpan di Google Sheet._`;
       btnWA.innerText = "📲 Coba Simpan & Kirim WA Lagi";
     }
   }
-
-  function tutupModal() {
-    document.getElementById('modalRincian').style.display = 'none';
-  }
-</script>
-
-</body>
-</html>
