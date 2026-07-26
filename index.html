@@ -148,13 +148,14 @@
   </div>
 </div>
 
-<!-- IFRAME & FORM TERSEMBUNYI UNTUK MENEMBUS PROBLEM CORS -->
+<!-- IFRAME & FORM TERSEMBUNYI DENGAN URL DEPLOYMENT BARU -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-<form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
+<form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
 </form>
 
 <script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  // URL Web App Terbaru
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
   let currentPayload = {};
 
@@ -245,7 +246,7 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Simpan ke Google Sheet via Hidden Form + Iframe (Tanpa WA)
+  // Simpan ke Google Sheet via Hidden Form + Iframe
   function simpanKeGoogleSheet() {
     const btnSimpan = document.getElementById('btnSimpanGS');
     const modalStatus = document.getElementById('modalStatus');
@@ -256,9 +257,9 @@
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
     try {
-      // Masukkan data ke Form Tersembunyi secara dinamis
       const hiddenForm = document.getElementById('hiddenGoogleForm');
-      hiddenForm.innerHTML = ''; // bersihkan isi lama
+      hiddenForm.action = WEB_APP_URL; // Memastikan action mengarah ke URL terbaru
+      hiddenForm.innerHTML = ''; 
 
       for (const key in currentPayload) {
         const input = document.createElement('input');
@@ -268,13 +269,11 @@
         hiddenForm.appendChild(input);
       }
 
-      // Submit Form ke Iframe
       hiddenForm.submit();
 
       modalStatus.style.color = "green";
       modalStatus.innerText = "✅ Data berhasil tersimpan ke Google Sheet!";
 
-      // Reset form & tutup modal setelah delay
       setTimeout(() => {
         document.getElementById('kasirForm').reset();
         document.getElementById('hari').value = hariList[now.getDay()];
