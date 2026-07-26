@@ -3,77 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Omset Kasir Mixue</title>
+  <title>Laporan Kasir Mixue</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; }
-    .card { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #e60012; margin-top: 0; }
+    .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #e60012; margin-top: 0; margin-bottom: 5px; }
+    .section-title { font-weight: bold; color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 5px; margin: 20px 0 10px 0; }
     .form-group { margin-bottom: 12px; }
-    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9em; color: #333; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.88em; color: #333; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; }
     input[readonly] { background-color: #e9ecef; }
     .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
-    button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; }
+    button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
     button:disabled { background-color: #cccccc; }
     #status { margin-top: 15px; text-align: center; font-weight: bold; }
+    .row-2 { display: flex; gap: 10px; }
+    .row-2 .form-group { flex: 1; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <h2>🍦 Form Kasir Mixue</h2>
+  <h2>🍦 Laporan Kasir Mixue</h2>
   <form id="kasirForm">
     
-    <div style="display: flex; gap: 10px;">
-      <div class="form-group" style="flex: 1;">
+    <!-- INFO KASIR & TANGGAL -->
+    <div class="row-2">
+      <div class="form-group">
         <label>Hari</label>
         <input type="text" id="hari" required readonly>
       </div>
-      <div class="form-group" style="flex: 2;">
+      <div class="form-group">
         <label>Tanggal</label>
         <input type="text" id="tanggal" required readonly>
       </div>
     </div>
 
     <div class="form-group">
-      <label>Cash (Tunai)</label>
-      <input type="number" id="cash" placeholder="0" class="nominal">
+      <label>Nama Kasir / Shift</label>
+      <input type="text" id="namaKasir" placeholder="Contoh: Silva / Dian" required>
     </div>
 
-    <div class="form-group">
-      <label>QRIS</label>
-      <input type="number" id="qris" placeholder="0" class="nominal">
+    <!-- PENDAPATAN -->
+    <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
+    
+    <div class="row-2">
+      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>QRIS</label><input type="number" id="qris" placeholder="0" class="nominal"></div>
     </div>
 
-    <div class="form-group">
-      <label>Gojek</label>
-      <input type="number" id="gojek" placeholder="0" class="nominal">
+    <div class="row-2">
+      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" placeholder="0" class="nominal"></div>
     </div>
 
-    <div class="form-group">
-      <label>ShopeeFood</label>
-      <input type="number" id="shopee" placeholder="0" class="nominal">
+    <div class="row-2">
+      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" placeholder="0" class="nominal"></div>
     </div>
 
-    <div class="form-group">
-      <label>TikTok Food</label>
-      <input type="number" id="tiktok" placeholder="0" class="nominal">
-    </div>
-
-    <div class="form-group">
-      <label>GrabFood</label>
-      <input type="number" id="grab" placeholder="0" class="nominal">
-    </div>
-
-    <div class="form-group">
-      <label>EDC</label>
-      <input type="number" id="edc" placeholder="0" class="nominal">
-    </div>
-
-    <div class="form-group">
-      <label>Lain-Lain</label>
-      <input type="number" id="lain" placeholder="0" class="nominal">
+    <div class="row-2">
+      <div class="form-group"><label>EDC</label><input type="number" id="edc" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="form-group">
@@ -85,17 +77,44 @@
       Total Omset: Rp <span id="totalOmset">0</span>
     </div>
 
-    <button type="submit" id="btnSubmit">Kirim Laporan</button>
+    <!-- PENJUALAN ITEM & PACKAGING -->
+    <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0"></div>
+      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0"></div>
+      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0"></div>
+      <div class="form-group"><label>Bag (Kantong)</label><input type="number" id="bag" placeholder="0"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0"></div>
+      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Boneka (Detail Jenis)</label>
+      <input type="text" id="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
+    </div>
+
+    <button type="submit" id="btnSubmit">Kirim Laporan Kasir</button>
   </form>
 
   <div id="status"></div>
 </div>
 
 <script>
-  // URL Web App dari Google Apps Script
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
-  // Otomatis Isikan Hari dan Tanggal Hari Ini
+  // Auto Set Hari & Tanggal
   const now = new Date();
   const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   document.getElementById('hari').value = hariList[now.getDay()];
@@ -103,22 +122,18 @@
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
 
-  // Kalkulasi Total Omset secara Real-time
+  // Hitung Total Omset
   const nominalInputs = document.querySelectorAll('.nominal');
-  nominalInputs.forEach(input => {
-    input.addEventListener('input', hitungTotal);
-  });
+  nominalInputs.forEach(input => input.addEventListener('input', hitungTotal));
 
   function hitungTotal() {
     let total = 0;
-    nominalInputs.forEach(input => {
-      total += Number(input.value) || 0;
-    });
+    nominalInputs.forEach(input => total += Number(input.value) || 0);
     document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
     return total;
   }
 
-  // Kirim Data ke Google Sheet via Fetch API
+  // Submit Form
   document.getElementById('kasirForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -132,6 +147,7 @@
     const payload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
+      namaKasir: document.getElementById('namaKasir').value,
       omset: hitungTotal(),
       cash: document.getElementById('cash').value,
       qris: document.getElementById('qris').value,
@@ -141,7 +157,16 @@
       grab: document.getElementById('grab').value,
       edc: document.getElementById('edc').value,
       lain: document.getElementById('lain').value,
-      odong: document.getElementById('odong').value
+      odong: document.getElementById('odong').value,
+      cone: document.getElementById('cone').value,
+      cup400: document.getElementById('cup400').value,
+      cup500: document.getElementById('cup500').value,
+      cup700: document.getElementById('cup700').value,
+      paperM: document.getElementById('paperM').value,
+      bag: document.getElementById('bag').value,
+      thermal4: document.getElementById('thermal4').value,
+      thermal2: document.getElementById('thermal2').value,
+      boneka: document.getElementById('boneka').value
     };
 
     try {
@@ -156,7 +181,6 @@
         statusDiv.style.color = "green";
         statusDiv.innerText = "✅ " + res.message;
         document.getElementById('kasirForm').reset();
-        // Reset ulang tanggal setelah form di-reset
         document.getElementById('hari').value = hariList[now.getDay()];
         document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
         hitungTotal();
@@ -168,7 +192,7 @@
       statusDiv.innerText = "❌ Gagal mengirim: " + err.message;
     } finally {
       btn.disabled = false;
-      btn.innerText = "Kirim Laporan";
+      btn.innerText = "Kirim Laporan Kasir";
     }
   });
 </script>
