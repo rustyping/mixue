@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Omset Kasir Mixue</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 15px; }
+    .card { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #e60012; margin-top: 0; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9em; color: #333; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+    input[readonly] { background-color: #e9ecef; }
+    .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
+    button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; }
+    button:disabled { background-color: #cccccc; }
+    #status { margin-top: 15px; text-align: center; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🍦 Form Kasir Mixue</h2>
+  <form id="kasirForm">
+    
+    <div style="display: flex; gap: 10px;">
+      <div class="form-group" style="flex: 1;">
+        <label>Hari</label>
+        <input type="text" id="hari" required readonly>
+      </div>
+      <div class="form-group" style="flex: 2;">
+        <label>Tanggal</label>
+        <input type="text" id="tanggal" required readonly>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Cash (Tunai)</label>
+      <input type="number" id="cash" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>QRIS</label>
+      <input type="number" id="qris" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>Gojek</label>
+      <input type="number" id="gojek" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>ShopeeFood</label>
+      <input type="number" id="shopee" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>TikTok Food</label>
+      <input type="number" id="tiktok" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>GrabFood</label>
+      <input type="number" id="grab" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>EDC</label>
+      <input type="number" id="edc" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>Lain-Lain</label>
+      <input type="number" id="lain" placeholder="0" class="nominal">
+    </div>
+
+    <div class="form-group">
+      <label>Odong-Odong</label>
+      <input type="number" id="odong" placeholder="0" class="nominal">
+    </div>
+
+    <div class="total-box">
+      Total Omset: Rp <span id="totalOmset">0</span>
+    </div>
+
+    <button type="submit" id="btnSubmit">Kirim Laporan</button>
+  </form>
+
+  <div id="status"></div>
+</div>
+
+<script>
+  // URL Web App dari Google Apps Script
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+
+  // Otomatis Isikan Hari dan Tanggal Hari Ini
+  const now = new Date();
+  const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  document.getElementById('hari').value = hariList[now.getDay()];
+  
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
+
+  // Kalkulasi Total Omset secara Real-time
+  const nominalInputs = document.querySelectorAll('.nominal');
+  nominalInputs.forEach(input => {
+    input.addEventListener('input', hitungTotal);
+  });
+
+  function hitungTotal() {
+    let total = 0;
+    nominalInputs.forEach(input => {
+      total += Number(input.value) || 0;
+    });
+    document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
+    return total;
+  }
+
+  // Kirim Data ke Google Sheet via Fetch API
+  document.getElementById('kasirForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('btnSubmit');
+    const statusDiv = document.getElementById('status');
+    btn.disabled = true;
+    btn.innerText = "Mengirim...";
+    statusDiv.style.color = "blue";
+    statusDiv.innerText = "Prosedur menyimpan data...";
+
+    const payload = {
+      hari: document.getElementById('hari').value,
+      tanggal: document.getElementById('tanggal').value,
+      omset: hitungTotal(),
+      cash: document.getElementById('cash').value,
+      qris: document.getElementById('qris').value,
+      gojek: document.getElementById('gojek').value,
+      shopee: document.getElementById('shopee').value,
+      tiktok: document.getElementById('tiktok').value,
+      grab: document.getElementById('grab').value,
+      edc: document.getElementById('edc').value,
+      lain: document.getElementById('lain').value,
+      odong: document.getElementById('odong').value
+    };
+
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      const res = await response.json();
+      if (res.status === 'success') {
+        statusDiv.style.color = "green";
+        statusDiv.innerText = "✅ " + res.message;
+        document.getElementById('kasirForm').reset();
+        // Reset ulang tanggal setelah form di-reset
+        document.getElementById('hari').value = hariList[now.getDay()];
+        document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
+        hitungTotal();
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err) {
+      statusDiv.style.color = "red";
+      statusDiv.innerText = "❌ Gagal mengirim: " + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Kirim Laporan";
+    }
+  });
+</script>
+
+</body>
+</html>
