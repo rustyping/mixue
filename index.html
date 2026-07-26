@@ -18,6 +18,7 @@
     .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
     button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
     button:disabled { background-color: #cccccc; }
+    #status { margin-top: 15px; text-align: center; font-weight: bold; }
     .row-2 { display: flex; gap: 10px; }
     .row-2 .form-group { flex: 1; }
 
@@ -31,7 +32,7 @@
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
     
     /* Button Group Modal */
-    .btn-wa { background-color: #25D366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
+    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #777; margin-top: 8px; }
   </style>
 </head>
@@ -39,7 +40,7 @@
 
 <div class="card">
   <h2>🍦 Laporan Kasir Mixue</h2>
-  <form id="kasirForm">
+  <form id="kasirForm" onsubmit="event.preventDefault();">
     
     <!-- INFO KASIR & TANGGAL -->
     <div class="row-2">
@@ -126,7 +127,8 @@
       <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
     </div>
 
-    <button type="submit" id="btnNext">Lanjutkan / Cek Summary ➡️</button>
+    <!-- Tipe button diubah dari submit menjadi button agar tidak mereset halaman -->
+    <button type="button" id="btnNext" onclick="bukaSummary()">Lanjutkan / Cek Summary ➡️</button>
   </form>
 </div>
 
@@ -134,7 +136,7 @@
 <div class="modal-overlay" id="modalRincian">
   <div class="modal-content">
     <div class="modal-header">📋 Summary Laporan Kasir</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum dikirim:</p>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
     
     <table class="summary-table" id="tabelRincian">
       <!-- Data Rincian Ditempel Lewat JS -->
@@ -142,23 +144,13 @@
 
     <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
 
-    <button type="button" class="btn-wa" id="btnProsesSemua" onclick="prosesSimpanDanKirimWA()">📲 Kirim ke WhatsApp & Google Sheet</button>
+    <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
     <button type="button" class="btn-close" id="btnCloseModal" onclick="tutupModal()">Cek Ulang / Edit Form</button>
   </div>
 </div>
 
-<!-- IFRAME & FORM TERSEMBUNYI -->
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-<form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
-</form>
-
 <script>
-  // URL Web App Google Apps Script
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
-
-  // Nomor Tujuan WhatsApp (Isi dengan kode negara 62..., misal 6281234567890)
-  // Biarkan kosong "" jika ingin memilih kontak WhatsApp secara manual saat terbuka
-  const NOMOR_WA_TUJUAN = ""; 
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
   let currentPayload = {};
 
@@ -185,14 +177,19 @@
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
   }
 
-  // Buka Modal Ringkasan Dulu
-  document.getElementById('kasirForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+  // Fungsi khusus untuk dipanggil tombol Lanjutkan
+  function bukaSummary() {
+    const namaKasirInput = document.getElementById('namaKasir').value.trim();
+    if (!namaKasirInput) {
+      alert("Harap isi Nama Kasir / Shift terlebih dahulu!");
+      document.getElementById('namaKasir').focus();
+      return;
+    }
 
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
-      namaKasir: document.getElementById('namaKasir').value,
+      namaKasir: namaKasirInput,
       omset: hitungTotal(),
       cash: document.getElementById('cash').value,
       qris: document.getElementById('qris').value,
@@ -216,15 +213,15 @@
     };
 
     document.getElementById('modalStatus').innerText = "";
-    document.getElementById('btnProsesSemua').disabled = false;
-    document.getElementById('btnProsesSemua').innerText = "📲 Kirim ke WhatsApp & Google Sheet";
+    document.getElementById('btnSimpanWA').disabled = false;
+    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
 
     tampilkanRincianModal(currentPayload);
-  });
+  }
 
   function tampilkanRincianModal(data) {
     const html = `
-      <tr><td>Hari / Tanggal</td><td>${data.hari},${data.tanggal}</td></tr>
+      <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
       <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
       <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
@@ -237,8 +234,8 @@
       <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
       <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
-      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone\vert{}\vert{}0} /${data.cup400||0} / ${data.cup500\vert{}\vert{}0} /${data.cup700||0}</td></tr>
-      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM\vert{}\vert{}0} /${data.bag||0} / ${data.thermal2\vert{}\vert{}0}/${data.thermal4||0}</td></tr>
+      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone||0} / ${data.cup400||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
+      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM||0} / ${data.bag||0} / ${data.thermal2||0}/${data.thermal4||0}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
       <tr><td>Boneka</td><td>${data.boneka || '-'}</td></tr>
       <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
@@ -249,75 +246,75 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Fungsi Proses Simpan ke Google Sheet & Buka WA
-  function prosesSimpanDanKirimWA() {
-    const btnProses = document.getElementById('btnProsesSemua');
+  // Simpan ke Google Sheet LALU Buka WA
+  async function simpanDanKirimWA() {
+    const btnWA = document.getElementById('btnSimpanWA');
     const modalStatus = document.getElementById('modalStatus');
 
-    btnProses.disabled = true;
-    btnProses.innerText = "⏳ Memproses...";
+    btnWA.disabled = true;
+    btnWA.innerText = "⏳ Menyimpan Data...";
     modalStatus.style.color = "blue";
-    modalStatus.innerText = "Menyimpan ke Google Sheet & membuka WA...";
+    modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
     try {
-      // 1. SIMPAN KE GOOGLE SHEET VIA HIDDEN FORM
-      const hiddenForm = document.getElementById('hiddenGoogleForm');
-      hiddenForm.action = WEB_APP_URL;
-      hiddenForm.innerHTML = ''; 
-
+      const formBody = new URLSearchParams();
       for (const key in currentPayload) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = currentPayload[key];
-        hiddenForm.appendChild(input);
+        formBody.append(key, currentPayload[key]);
       }
 
-      hiddenForm.submit();
-
-      // 2. SUSUN PESAN WHATSAPP
-      const p = currentPayload;
-      let pesanWA = `*LAPORAN KASIR MIXUE*\n`;
-      pesanWA += `Hari/Tgl: ${p.hari},${p.tanggal}\n`;
-      pesanWA += `Kasir: ${p.namaKasir}\n\n`;
-      pesanWA += `*PENDAPATAN:*\n`;
-      pesanWA += `- Cash: ${formatRupiah(p.cash)}\n`;
-      pesanWA += `- QRIS: ${formatRupiah(p.qris)}\n`;
-      pesanWA += `- Gojek: ${formatRupiah(p.gojek)}\n`;
-      pesanWA += `- ShopeeFood: ${formatRupiah(p.shopee)}\n`;
-      pesanWA += `- TikTok Food: ${formatRupiah(p.tiktok)}\n`;
-      pesanWA += `- GrabFood: ${formatRupiah(p.grab)}\n`;
-      pesanWA += `- EDC: ${formatRupiah(p.edc)}\n`;
-      pesanWA += `- Lain-Lain: ${formatRupiah(p.lain)}\n`;
-      pesanWA += `*TOTAL OMSET: ${formatRupiah(p.omset)}*\n\n`;
-      pesanWA += `*PENJUALAN CUP & ITEM:*\n`;
-      pesanWA += `- Cone: ${p.cone || 0}\n`;
-      pesanWA += `- Cup 400: ${p.cup400 || 0}\n`;
-      pesanWA += `- Cup 500: ${p.cup500 || 0}\n`;
-      pesanWA += `- Cup 700: ${p.cup700 || 0}\n`;
-      pesanWA += `- Paper M: ${p.paperM || 0}\n`;
-      pesanWA += `- Bag: ${p.bag || 0}\n`;
-      pesanWA += `- Thermal 2 Cup: ${p.thermal2 || 0}\n`;
-      pesanWA += `- Thermal 4 Cup: ${p.thermal4 || 0}\n\n`;
-      pesanWA += `*LAIN-LAIN:*\n`;
-      pesanWA += `- Boneka: ${p.boneka || '-'}\n`;
-      pesanWA += `- Odong-Odong: ${formatRupiah(p.odong)}\n`;
-      pesanWA += `- Catatan: ${p.catatan || '-'}`;
-
-      // 3. BUKA WHATSAPP
-      const encodedText = encodeURIComponent(pesanWA);
-      let urlWA = "";
-      if (NOMOR_WA_TUJUAN && NOMOR_WA_TUJUAN.trim() !== "") {
-        urlWA = `https://api.whatsapp.com/send?phone=${NOMOR_WA_TUJUAN.trim()}&text=${encodedText}`;
-      } else {
-        urlWA = `https://api.whatsapp.com/send?text=${encodedText}`;
-      }
-
-      window.open(urlWA, '_blank');
+      // Kirim request ke Apps Script
+      await fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formBody.toString()
+      });
 
       modalStatus.style.color = "green";
-      modalStatus.innerText = "✅ Selesai! Data disimpan & WhatsApp dibuka.";
+      modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
 
+      // Rakit Pesan WA
+      const d = currentPayload;
+      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+----------------------------------
+📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
+👤 *Kasir:* ${d.namaKasir}
+
+💵 *RINCIAN PENDAPATAN:*
+• Cash: ${formatRupiah(d.cash)}
+• QRIS: ${formatRupiah(d.qris)}
+• Gojek: ${formatRupiah(d.gojek)}
+• ShopeeFood: ${formatRupiah(d.shopee)}
+• TikTok Food: ${formatRupiah(d.tiktok)}
+• GrabFood: ${formatRupiah(d.grab)}
+• EDC: ${formatRupiah(d.edc)}
+• Lain-lain: ${formatRupiah(d.lain)}
+----------------------------------
+💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
+----------------------------------
+
+📦 *PENJUALAN CUP & ITEM:*
+• Cone: ${d.cone || 0}
+• Cup 400: ${d.cup400 || 0}
+• Cup 500: ${d.cup500 || 0}
+• Cup 700: ${d.cup700 || 0}
+• Paper M: ${d.paperM || 0}
+• Bag: ${d.bag || 0}
+• Thermal Bag 2 Cup: ${d.thermal2 || 0}
+• Thermal Bag 4 Cup: ${d.thermal4 || 0}
+
+🎈 *CATATAN LAINNYA:*
+• Boneka: ${d.boneka || '-'}
+• Uang Odong-Odong: ${formatRupiah(d.odong)}
+• Catatan: ${d.catatan || '-'}
+----------------------------------
+_Laporan ini telah otomatis tersimpan di Google Sheet._`;
+
+      // Buka WhatsApp
+      const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
+      window.open(urlWA, '_blank');
+
+      // Reset form & tutup modal
       setTimeout(() => {
         document.getElementById('kasirForm').reset();
         document.getElementById('hari').value = hariList[now.getDay()];
@@ -328,9 +325,9 @@
 
     } catch (err) {
       modalStatus.style.color = "red";
-      modalStatus.innerText = "❌ Terjadi kendala: " + err.message;
-      btnProses.disabled = false;
-      btnProses.innerText = "📲 Coba Kirim Lagi";
+      modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
+      btnWA.disabled = false;
+      btnWA.innerText = "📲 Coba Simpan & Kirim WA Lagi";
     }
   }
 
