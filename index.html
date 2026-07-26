@@ -148,6 +148,11 @@
   </div>
 </div>
 
+<!-- IFRAME & FORM TERSEMBUNYI UNTUK MENEMBUS PROBLEM CORS -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
+</form>
+
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
@@ -240,10 +245,8 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Simpan ke Google Sheet LALU Buka WA
-  // Simpan ke Google Sheet LALU Buka WA
-  // Simpan ke Google Sheet LALU Buka WA
-  async function simpanDanKirimWA() {
+  // Simpan ke Google Sheet via Hidden Form + Iframe LALU Buka WA
+  function simpanDanKirimWA() {
     const btnWA = document.getElementById('btnSimpanWA');
     const modalStatus = document.getElementById('modalStatus');
 
@@ -253,19 +256,20 @@
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
     try {
-      // Mengubah payload menjadi URLSearchParams agar terbaca 100% oleh Google Apps Script
-      const formBody = new URLSearchParams();
+      // Masukkan data ke Form Tersembunyi secara dinamis
+      const hiddenForm = document.getElementById('hiddenGoogleForm');
+      hiddenForm.innerHTML = ''; // bersihkan isi lama
+
       for (const key in currentPayload) {
-        formBody.append(key, currentPayload[key]);
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = currentPayload[key];
+        hiddenForm.appendChild(input);
       }
 
-      // Kirim request ke Apps Script
-      await fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody.toString()
-      });
+      // Submit Form ke Iframe
+      hiddenForm.submit();
 
       modalStatus.style.color = "green";
       modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
@@ -311,7 +315,7 @@ _Laporan ini telah otomatis tersimpan di Google Sheet._`;
       const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
       window.open(urlWA, '_blank');
 
-      // Reset form & tutup modal
+      // Reset form & tutup modal setelah delay
       setTimeout(() => {
         document.getElementById('kasirForm').reset();
         document.getElementById('hari').value = hariList[now.getDay()];
