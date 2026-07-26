@@ -18,7 +18,6 @@
     .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
     button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
     button:disabled { background-color: #cccccc; }
-    #status { margin-top: 15px; text-align: center; font-weight: bold; }
     .row-2 { display: flex; gap: 10px; }
     .row-2 .form-group { flex: 1; }
 
@@ -32,7 +31,7 @@
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
     
     /* Button Group Modal */
-    .btn-save { background-color: #e60012; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
+    .btn-wa { background-color: #25D366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #777; margin-top: 8px; }
   </style>
 </head>
@@ -135,7 +134,7 @@
 <div class="modal-overlay" id="modalRincian">
   <div class="modal-content">
     <div class="modal-header">📋 Summary Laporan Kasir</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan ke Google Sheet:</p>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum dikirim:</p>
     
     <table class="summary-table" id="tabelRincian">
       <!-- Data Rincian Ditempel Lewat JS -->
@@ -143,19 +142,23 @@
 
     <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
 
-    <button type="button" class="btn-save" id="btnSimpanGS" onclick="simpanKeGoogleSheet()">💾 Simpan ke Google Sheet</button>
+    <button type="button" class="btn-wa" id="btnProsesSemua" onclick="prosesSimpanDanKirimWA()">📲 Kirim ke WhatsApp & Google Sheet</button>
     <button type="button" class="btn-close" id="btnCloseModal" onclick="tutupModal()">Cek Ulang / Edit Form</button>
   </div>
 </div>
 
-<!-- IFRAME & FORM TERSEMBUNYI DENGAN URL DEPLOYMENT BARU -->
+<!-- IFRAME & FORM TERSEMBUNYI -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 <form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
 </form>
 
 <script>
-  // URL Web App Terbaru
+  // URL Web App Google Apps Script
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+
+  // Nomor Tujuan WhatsApp (Isi dengan kode negara 62..., misal 6281234567890)
+  // Biarkan kosong "" jika ingin memilih kontak WhatsApp secara manual saat terbuka
+  const NOMOR_WA_TUJUAN = ""; 
 
   let currentPayload = {};
 
@@ -213,15 +216,15 @@
     };
 
     document.getElementById('modalStatus').innerText = "";
-    document.getElementById('btnSimpanGS').disabled = false;
-    document.getElementById('btnSimpanGS').innerText = "💾 Simpan ke Google Sheet";
+    document.getElementById('btnProsesSemua').disabled = false;
+    document.getElementById('btnProsesSemua').innerText = "📲 Kirim ke WhatsApp & Google Sheet";
 
     tampilkanRincianModal(currentPayload);
   });
 
   function tampilkanRincianModal(data) {
     const html = `
-      <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
+      <tr><td>Hari / Tanggal</td><td>${data.hari},${data.tanggal}</td></tr>
       <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
       <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
@@ -234,8 +237,8 @@
       <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
       <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
-      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone||0} / ${data.cup400||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
-      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM||0} / ${data.bag||0} / ${data.thermal2||0}/${data.thermal4||0}</td></tr>
+      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone\vert{}\vert{}0} /${data.cup400||0} / ${data.cup500\vert{}\vert{}0} /${data.cup700||0}</td></tr>
+      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM\vert{}\vert{}0} /${data.bag||0} / ${data.thermal2\vert{}\vert{}0}/${data.thermal4||0}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
       <tr><td>Boneka</td><td>${data.boneka || '-'}</td></tr>
       <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
@@ -246,19 +249,20 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Simpan ke Google Sheet via Hidden Form + Iframe
-  function simpanKeGoogleSheet() {
-    const btnSimpan = document.getElementById('btnSimpanGS');
+  // Fungsi Proses Simpan ke Google Sheet & Buka WA
+  function prosesSimpanDanKirimWA() {
+    const btnProses = document.getElementById('btnProsesSemua');
     const modalStatus = document.getElementById('modalStatus');
 
-    btnSimpan.disabled = true;
-    btnSimpan.innerText = "⏳ Menyimpan Data...";
+    btnProses.disabled = true;
+    btnProses.innerText = "⏳ Memproses...";
     modalStatus.style.color = "blue";
-    modalStatus.innerText = "Mengirim data ke Google Sheet...";
+    modalStatus.innerText = "Menyimpan ke Google Sheet & membuka WA...";
 
     try {
+      // 1. SIMPAN KE GOOGLE SHEET VIA HIDDEN FORM
       const hiddenForm = document.getElementById('hiddenGoogleForm');
-      hiddenForm.action = WEB_APP_URL; // Memastikan action mengarah ke URL terbaru
+      hiddenForm.action = WEB_APP_URL;
       hiddenForm.innerHTML = ''; 
 
       for (const key in currentPayload) {
@@ -271,8 +275,48 @@
 
       hiddenForm.submit();
 
+      // 2. SUSUN PESAN WHATSAPP
+      const p = currentPayload;
+      let pesanWA = `*LAPORAN KASIR MIXUE*\n`;
+      pesanWA += `Hari/Tgl: ${p.hari},${p.tanggal}\n`;
+      pesanWA += `Kasir: ${p.namaKasir}\n\n`;
+      pesanWA += `*PENDAPATAN:*\n`;
+      pesanWA += `- Cash: ${formatRupiah(p.cash)}\n`;
+      pesanWA += `- QRIS: ${formatRupiah(p.qris)}\n`;
+      pesanWA += `- Gojek: ${formatRupiah(p.gojek)}\n`;
+      pesanWA += `- ShopeeFood: ${formatRupiah(p.shopee)}\n`;
+      pesanWA += `- TikTok Food: ${formatRupiah(p.tiktok)}\n`;
+      pesanWA += `- GrabFood: ${formatRupiah(p.grab)}\n`;
+      pesanWA += `- EDC: ${formatRupiah(p.edc)}\n`;
+      pesanWA += `- Lain-Lain: ${formatRupiah(p.lain)}\n`;
+      pesanWA += `*TOTAL OMSET: ${formatRupiah(p.omset)}*\n\n`;
+      pesanWA += `*PENJUALAN CUP & ITEM:*\n`;
+      pesanWA += `- Cone: ${p.cone || 0}\n`;
+      pesanWA += `- Cup 400: ${p.cup400 || 0}\n`;
+      pesanWA += `- Cup 500: ${p.cup500 || 0}\n`;
+      pesanWA += `- Cup 700: ${p.cup700 || 0}\n`;
+      pesanWA += `- Paper M: ${p.paperM || 0}\n`;
+      pesanWA += `- Bag: ${p.bag || 0}\n`;
+      pesanWA += `- Thermal 2 Cup: ${p.thermal2 || 0}\n`;
+      pesanWA += `- Thermal 4 Cup: ${p.thermal4 || 0}\n\n`;
+      pesanWA += `*LAIN-LAIN:*\n`;
+      pesanWA += `- Boneka: ${p.boneka || '-'}\n`;
+      pesanWA += `- Odong-Odong: ${formatRupiah(p.odong)}\n`;
+      pesanWA += `- Catatan: ${p.catatan || '-'}`;
+
+      // 3. BUKA WHATSAPP
+      const encodedText = encodeURIComponent(pesanWA);
+      let urlWA = "";
+      if (NOMOR_WA_TUJUAN && NOMOR_WA_TUJUAN.trim() !== "") {
+        urlWA = `https://api.whatsapp.com/send?phone=${NOMOR_WA_TUJUAN.trim()}&text=${encodedText}`;
+      } else {
+        urlWA = `https://api.whatsapp.com/send?text=${encodedText}`;
+      }
+
+      window.open(urlWA, '_blank');
+
       modalStatus.style.color = "green";
-      modalStatus.innerText = "✅ Data berhasil tersimpan ke Google Sheet!";
+      modalStatus.innerText = "✅ Selesai! Data disimpan & WhatsApp dibuka.";
 
       setTimeout(() => {
         document.getElementById('kasirForm').reset();
@@ -284,9 +328,9 @@
 
     } catch (err) {
       modalStatus.style.color = "red";
-      modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
-      btnSimpan.disabled = false;
-      btnSimpan.innerText = "💾 Coba Simpan Lagi";
+      modalStatus.innerText = "❌ Terjadi kendala: " + err.message;
+      btnProses.disabled = false;
+      btnProses.innerText = "📲 Coba Kirim Lagi";
     }
   }
 
