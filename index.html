@@ -18,7 +18,6 @@
     .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
     button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
     button:disabled { background-color: #cccccc; }
-    #status { margin-top: 15px; text-align: center; font-weight: bold; }
     .row-2 { display: flex; gap: 10px; }
     .row-2 .form-group { flex: 1; }
 
@@ -31,7 +30,6 @@
     .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
     
-    /* Button Group Modal */
     .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #777; margin-top: 8px; }
   </style>
@@ -40,46 +38,46 @@
 
 <div class="card">
   <h2>🍦 Laporan Kasir Mixue</h2>
-  <form id="kasirForm" onsubmit="event.preventDefault();">
+  <form id="kasirForm">
     
     <!-- INFO KASIR & TANGGAL -->
     <div class="row-2">
       <div class="form-group">
         <label>Hari</label>
-        <input type="text" id="hari" required readonly>
+        <input type="text" id="hari" name="hari" required readonly>
       </div>
       <div class="form-group">
         <label>Tanggal</label>
-        <input type="text" id="tanggal" required readonly>
+        <input type="text" id="tanggal" name="tanggal" required readonly>
       </div>
     </div>
 
     <div class="form-group">
       <label>Nama Kasir / Shift</label>
-      <input type="text" id="namaKasir" placeholder="Contoh: Silva / Dian" required>
+      <input type="text" id="namaKasir" name="namaKasir" placeholder="Contoh: Silva / Dian" required>
     </div>
 
     <!-- PENDAPATAN -->
     <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
     
     <div class="row-2">
-      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>QRIS</label><input type="number" id="qris" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" name="cash" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>QRIS</label><input type="number" id="qris" name="qris" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" name="gojek" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" name="shopee" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" name="tiktok" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" name="grab" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>EDC</label><input type="number" id="edc" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>EDC</label><input type="number" id="edc" name="edc" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" name="lain" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="total-box">
@@ -90,23 +88,23 @@
     <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
 
     <div class="row-2">
-      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0"></div>
-      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0"></div>
+      <div class="form-group"><label>Cone</label><input type="number" id="cone" name="cone" placeholder="0"></div>
+      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" name="cup400" placeholder="0"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0"></div>
-      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0"></div>
+      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" name="cup500" placeholder="0"></div>
+      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" name="cup700" placeholder="0"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0"></div>
-      <div class="form-group"><label>Bag (Kantong)</label><input type="number" id="bag" placeholder="0"></div>
+      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" name="paperM" placeholder="0"></div>
+      <div class="form-group"><label>Bag (Kantong)</label><input type="number" id="bag" name="bag" placeholder="0"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0"></div>
-      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0"></div>
+      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" name="thermal2" placeholder="0"></div>
+      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" name="thermal4" placeholder="0"></div>
     </div>
 
     <!-- CATATAN LAINNYA -->
@@ -114,20 +112,19 @@
 
     <div class="form-group">
       <label>Boneka (Detail Jenis)</label>
-      <input type="text" id="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
+      <input type="text" id="boneka" name="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
     </div>
 
     <div class="form-group">
       <label>Uang Odong-Odong (Rp)</label>
-      <input type="number" id="odong" placeholder="0">
+      <input type="number" id="odong" name="odong" placeholder="0">
     </div>
 
     <div class="form-group">
       <label>Catatan Opsional</label>
-      <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
+      <textarea id="catatan" name="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
     </div>
 
-    <!-- Tipe button diubah dari submit menjadi button agar tidak mereset halaman -->
     <button type="button" id="btnNext" onclick="bukaSummary()">Lanjutkan / Cek Summary ➡️</button>
   </form>
 </div>
@@ -152,8 +149,6 @@
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
-  let currentPayload = {};
-
   // Auto Set Hari & Tanggal
   const now = new Date();
   const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
@@ -177,7 +172,6 @@
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
   }
 
-  // Fungsi khusus untuk dipanggil tombol Lanjutkan
   function bukaSummary() {
     const namaKasirInput = document.getElementById('namaKasir').value.trim();
     if (!namaKasirInput) {
@@ -186,70 +180,41 @@
       return;
     }
 
-    currentPayload = {
-      hari: document.getElementById('hari').value,
-      tanggal: document.getElementById('tanggal').value,
-      namaKasir: namaKasirInput,
-      omset: hitungTotal(),
-      cash: document.getElementById('cash').value,
-      qris: document.getElementById('qris').value,
-      gojek: document.getElementById('gojek').value,
-      shopee: document.getElementById('shopee').value,
-      tiktok: document.getElementById('tiktok').value,
-      grab: document.getElementById('grab').value,
-      edc: document.getElementById('edc').value,
-      lain: document.getElementById('lain').value,
-      odong: document.getElementById('odong').value,
-      cone: document.getElementById('cone').value,
-      cup400: document.getElementById('cup400').value,
-      cup500: document.getElementById('cup500').value,
-      cup700: document.getElementById('cup700').value,
-      paperM: document.getElementById('paperM').value,
-      bag: document.getElementById('bag').value,
-      thermal2: document.getElementById('thermal2').value,
-      thermal4: document.getElementById('thermal4').value,
-      boneka: document.getElementById('boneka').value,
-      catatan: document.getElementById('catatan').value
-    };
+    const totalOmsetVal = hitungTotal();
 
-    document.getElementById('modalStatus').innerText = "";
-    document.getElementById('btnSimpanWA').disabled = false;
-    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
-
-    tampilkanRincianModal(currentPayload);
-  }
-
-  function tampilkanRincianModal(data) {
     const html = `
-      <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
-      <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
+      <tr><td>Hari / Tanggal</td><td>${document.getElementById('hari').value}, ${document.getElementById('tanggal').value}</td></tr>
+      <tr><td>Nama Kasir</td><td>${namaKasirInput}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
-      <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
-      <tr><td>QRIS</td><td>${formatRupiah(data.qris)}</td></tr>
-      <tr><td>Gojek</td><td>${formatRupiah(data.gojek)}</td></tr>
-      <tr><td>ShopeeFood</td><td>${formatRupiah(data.shopee)}</td></tr>
-      <tr><td>TikTok Food</td><td>${formatRupiah(data.tiktok)}</td></tr>
-      <tr><td>GrabFood</td><td>${formatRupiah(data.grab)}</td></tr>
-      <tr><td>EDC</td><td>${formatRupiah(data.edc)}</td></tr>
-      <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
-      <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
+      <tr><td>Cash (Tunai)</td><td>${formatRupiah(document.getElementById('cash').value)}</td></tr>
+      <tr><td>QRIS</td><td>${formatRupiah(document.getElementById('qris').value)}</td></tr>
+      <tr><td>Gojek</td><td>${formatRupiah(document.getElementById('gojek').value)}</td></tr>
+      <tr><td>ShopeeFood</td><td>${formatRupiah(document.getElementById('shopee').value)}</td></tr>
+      <tr><td>TikTok Food</td><td>${formatRupiah(document.getElementById('tiktok').value)}</td></tr>
+      <tr><td>GrabFood</td><td>${formatRupiah(document.getElementById('grab').value)}</td></tr>
+      <tr><td>EDC</td><td>${formatRupiah(document.getElementById('edc').value)}</td></tr>
+      <tr><td>Lain-Lain</td><td>${formatRupiah(document.getElementById('lain').value)}</td></tr>
+      <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(totalOmsetVal)}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
-      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${data.cone||0} / ${data.cup400||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
-      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM||0} / ${data.bag||0} / ${data.thermal2||0}/${data.thermal4||0}</td></tr>
+      <tr><td>Cone / Cup 400 / 500 / 700</td><td>${document.getElementById('cone').value||0} / ${document.getElementById('cup400').value||0} / ${document.getElementById('cup500').value||0} / ${document.getElementById('cup700').value||0}</td></tr>
+      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${document.getElementById('paperM').value||0} / ${document.getElementById('bag').value||0} / ${document.getElementById('thermal2').value||0}/${document.getElementById('thermal4').value||0}</td></tr>
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
-      <tr><td>Boneka</td><td>${data.boneka || '-'}</td></tr>
-      <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
-      <tr><td>Catatan</td><td>${data.catatan || '-'}</td></tr>
+      <tr><td>Boneka</td><td>${document.getElementById('boneka').value || '-'}</td></tr>
+      <tr><td>Uang Odong-Odong</td><td>${formatRupiah(document.getElementById('odong').value)}</td></tr>
+      <tr><td>Catatan</td><td>${document.getElementById('catatan').value || '-'}</td></tr>
     `;
     
     document.getElementById('tabelRincian').innerHTML = html;
+    document.getElementById('modalStatus').innerText = "";
+    document.getElementById('btnSimpanWA').disabled = false;
+    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Simpan ke Google Sheet LALU Buka WA
   async function simpanDanKirimWA() {
     const btnWA = document.getElementById('btnSimpanWA');
     const modalStatus = document.getElementById('modalStatus');
+    const formElement = document.getElementById('kasirForm');
 
     btnWA.disabled = true;
     btnWA.innerText = "⏳ Menyimpan Data...";
@@ -257,56 +222,52 @@
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
     try {
-      const formBody = new URLSearchParams();
-      for (const key in currentPayload) {
-        formBody.append(key, currentPayload[key]);
-      }
+      // Menggunakan FormData dari seluruh form HTML (Sesuai metode awal yang berhasil)
+      const formData = new FormData(formElement);
+      formData.append('omset', hitungTotal()); // Sertakan total omset yang dihitung otomatis
 
-      // Kirim request ke Apps Script
       await fetch(WEB_APP_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody.toString()
+        body: formData,
+        mode: 'no-cors'
       });
 
       modalStatus.style.color = "green";
       modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
 
       // Rakit Pesan WA
-      const d = currentPayload;
       const teksWA = `*LAPORAN KASIR MIXUE* 🍦
 ----------------------------------
-📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
-👤 *Kasir:* ${d.namaKasir}
+📅 *Hari/Tgl:* ${document.getElementById('hari').value}, ${document.getElementById('tanggal').value}
+👤 *Kasir:* ${document.getElementById('namaKasir').value}
 
 💵 *RINCIAN PENDAPATAN:*
-• Cash: ${formatRupiah(d.cash)}
-• QRIS: ${formatRupiah(d.qris)}
-• Gojek: ${formatRupiah(d.gojek)}
-• ShopeeFood: ${formatRupiah(d.shopee)}
-• TikTok Food: ${formatRupiah(d.tiktok)}
-• GrabFood: ${formatRupiah(d.grab)}
-• EDC: ${formatRupiah(d.edc)}
-• Lain-lain: ${formatRupiah(d.lain)}
+• Cash: ${formatRupiah(document.getElementById('cash').value)}
+• QRIS: ${formatRupiah(document.getElementById('qris').value)}
+• Gojek: ${formatRupiah(document.getElementById('gojek').value)}
+• ShopeeFood: ${formatRupiah(document.getElementById('shopee').value)}
+• TikTok Food: ${formatRupiah(document.getElementById('tiktok').value)}
+• GrabFood: ${formatRupiah(document.getElementById('grab').value)}
+• EDC: ${formatRupiah(document.getElementById('edc').value)}
+• Lain-lain: ${formatRupiah(document.getElementById('lain').value)}
 ----------------------------------
-💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
+💰 *TOTAL OMSET: ${formatRupiah(hitungTotal())}*
 ----------------------------------
 
 📦 *PENJUALAN CUP & ITEM:*
-• Cone: ${d.cone || 0}
-• Cup 400: ${d.cup400 || 0}
-• Cup 500: ${d.cup500 || 0}
-• Cup 700: ${d.cup700 || 0}
-• Paper M: ${d.paperM || 0}
-• Bag: ${d.bag || 0}
-• Thermal Bag 2 Cup: ${d.thermal2 || 0}
-• Thermal Bag 4 Cup: ${d.thermal4 || 0}
+• Cone: ${document.getElementById('cone').value || 0}
+• Cup 400: ${document.getElementById('cup400').value || 0}
+• Cup 500: ${document.getElementById('cup500').value || 0}
+• Cup 700: ${document.getElementById('cup700').value || 0}
+• Paper M: ${document.getElementById('paperM').value || 0}
+• Bag: ${document.getElementById('bag').value || 0}
+• Thermal Bag 2 Cup: ${document.getElementById('thermal2').value || 0}
+• Thermal Bag 4 Cup: ${document.getElementById('thermal4').value || 0}
 
 🎈 *CATATAN LAINNYA:*
-• Boneka: ${d.boneka || '-'}
-• Uang Odong-Odong: ${formatRupiah(d.odong)}
-• Catatan: ${d.catatan || '-'}
+• Boneka: ${document.getElementById('boneka').value || '-'}
+• Uang Odong-Odong: ${formatRupiah(document.getElementById('odong').value)}
+• Catatan: ${document.getElementById('catatan').value || '-'}
 ----------------------------------
 _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
@@ -316,7 +277,7 @@ _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
       // Reset form & tutup modal
       setTimeout(() => {
-        document.getElementById('kasirForm').reset();
+        formElement.reset();
         document.getElementById('hari').value = hariList[now.getDay()];
         document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
         hitungTotal();
