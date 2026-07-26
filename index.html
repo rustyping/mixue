@@ -32,7 +32,7 @@
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
     
     /* Button Group Modal */
-    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
+    .btn-save { background-color: #e60012; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #777; margin-top: 8px; }
   </style>
 </head>
@@ -135,7 +135,7 @@
 <div class="modal-overlay" id="modalRincian">
   <div class="modal-content">
     <div class="modal-header">📋 Summary Laporan Kasir</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan ke Google Sheet:</p>
     
     <table class="summary-table" id="tabelRincian">
       <!-- Data Rincian Ditempel Lewat JS -->
@@ -143,7 +143,7 @@
 
     <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
 
-    <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
+    <button type="button" class="btn-save" id="btnSimpanGS" onclick="simpanKeGoogleSheet()">💾 Simpan ke Google Sheet</button>
     <button type="button" class="btn-close" id="btnCloseModal" onclick="tutupModal()">Cek Ulang / Edit Form</button>
   </div>
 </div>
@@ -181,7 +181,7 @@
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
   }
 
-  // Buka Modal Ringkasan Dulu (Belum Kirim Data)
+  // Buka Modal Ringkasan Dulu
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -212,8 +212,8 @@
     };
 
     document.getElementById('modalStatus').innerText = "";
-    document.getElementById('btnSimpanWA').disabled = false;
-    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
+    document.getElementById('btnSimpanGS').disabled = false;
+    document.getElementById('btnSimpanGS').innerText = "💾 Simpan ke Google Sheet";
 
     tampilkanRincianModal(currentPayload);
   });
@@ -245,13 +245,13 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  // Simpan ke Google Sheet via Hidden Form + Iframe LALU Buka WA
-  function simpanDanKirimWA() {
-    const btnWA = document.getElementById('btnSimpanWA');
+  // Simpan ke Google Sheet via Hidden Form + Iframe (Tanpa WA)
+  function simpanKeGoogleSheet() {
+    const btnSimpan = document.getElementById('btnSimpanGS');
     const modalStatus = document.getElementById('modalStatus');
 
-    btnWA.disabled = true;
-    btnWA.innerText = "⏳ Menyimpan Data...";
+    btnSimpan.disabled = true;
+    btnSimpan.innerText = "⏳ Menyimpan Data...";
     modalStatus.style.color = "blue";
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
@@ -272,48 +272,7 @@
       hiddenForm.submit();
 
       modalStatus.style.color = "green";
-      modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
-
-      // Rakit Pesan WA
-      const d = currentPayload;
-      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
-----------------------------------
-📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
-👤 *Kasir:* ${d.namaKasir}
-
-💵 *RINCIAN PENDAPATAN:*
-• Cash: ${formatRupiah(d.cash)}
-• QRIS: ${formatRupiah(d.qris)}
-• Gojek: ${formatRupiah(d.gojek)}
-• ShopeeFood: ${formatRupiah(d.shopee)}
-• TikTok Food: ${formatRupiah(d.tiktok)}
-• GrabFood: ${formatRupiah(d.grab)}
-• EDC: ${formatRupiah(d.edc)}
-• Lain-lain: ${formatRupiah(d.lain)}
-----------------------------------
-💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
-----------------------------------
-
-📦 *PENJUALAN CUP & ITEM:*
-• Cone: ${d.cone || 0}
-• Cup 400: ${d.cup400 || 0}
-• Cup 500: ${d.cup500 || 0}
-• Cup 700: ${d.cup700 || 0}
-• Paper M: ${d.paperM || 0}
-• Bag: ${d.bag || 0}
-• Thermal Bag 2 Cup: ${d.thermal2 || 0}
-• Thermal Bag 4 Cup: ${d.thermal4 || 0}
-
-🎈 *CATATAN LAINNYA:*
-• Boneka: ${d.boneka || '-'}
-• Uang Odong-Odong: ${formatRupiah(d.odong)}
-• Catatan: ${d.catatan || '-'}
-----------------------------------
-_Laporan ini telah otomatis tersimpan di Google Sheet._`;
-
-      // Buka WhatsApp
-      const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
-      window.open(urlWA, '_blank');
+      modalStatus.innerText = "✅ Data berhasil tersimpan ke Google Sheet!";
 
       // Reset form & tutup modal setelah delay
       setTimeout(() => {
@@ -327,8 +286,8 @@ _Laporan ini telah otomatis tersimpan di Google Sheet._`;
     } catch (err) {
       modalStatus.style.color = "red";
       modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
-      btnWA.disabled = false;
-      btnWA.innerText = "📲 Coba Simpan & Kirim WA Lagi";
+      btnSimpan.disabled = false;
+      btnSimpan.innerText = "💾 Coba Simpan Lagi";
     }
   }
 
