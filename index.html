@@ -30,7 +30,10 @@
     .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
     .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
-    .btn-close { background-color: #2e7d32; margin-top: 5px; }
+    
+    /* Button Group Modal */
+    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 6px; padding: 12px; text-align: center; }
+    .btn-close { background-color: #777; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -134,18 +137,22 @@
 <div class="modal-overlay" id="modalRincian">
   <div class="modal-content">
     <div class="modal-header">✅ Laporan Berhasil Terkirim!</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Berikut adalah rincian data yang tersimpan di Google Sheet:</p>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Berikut adalah rincian data yang tersimpan:</p>
     
     <table class="summary-table" id="tabelRincian">
       <!-- Data Rincian Ditempel Lewat JS -->
     </table>
 
-    <button class="btn-close" onclick="tutupModal()">Tutup & Selesai</button>
+    <button type="button" class="btn-wa" onclick="kirimKeWA()">📲 Kirim Laporan ke WA Toko</button>
+    <button type="button" class="btn-close" onclick="tutupModal()">Selesai & Tutup</button>
   </div>
 </div>
 
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  const NO_WA_TOKO = "6283844611330"; // Format internasional Indonesia
+
+  let currentData = {}; // Menyimpan data sementara untuk dikirim ke WA
 
   // Auto Set Hari & Tanggal
   const now = new Date();
@@ -207,6 +214,8 @@
       catatan: document.getElementById('catatan').value
     };
 
+    currentData = payload; // Simpan ke variabel global
+
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
@@ -261,6 +270,47 @@
     
     document.getElementById('tabelRincian').innerHTML = html;
     document.getElementById('modalRincian').style.display = 'flex';
+  }
+
+  function kirimKeWA() {
+    const d = currentData;
+    const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+----------------------------------
+📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
+👤 *Kasir:* ${d.namaKasir}
+
+💵 *RINCIAN PENDAPATAN:*
+• Cash: ${formatRupiah(d.cash)}
+• QRIS: ${formatRupiah(d.qris)}
+• Gojek: ${formatRupiah(d.gojek)}
+• ShopeeFood: ${formatRupiah(d.shopee)}
+• TikTok Food: ${formatRupiah(d.tiktok)}
+• GrabFood: ${formatRupiah(d.grab)}
+• EDC: ${formatRupiah(d.edc)}
+• Lain-lain: ${formatRupiah(d.lain)}
+----------------------------------
+💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
+----------------------------------
+
+📦 *PENJUALAN CUP & ITEM:*
+• Cone: ${d.cone || 0}
+• Cup 400: ${d.cup400 || 0}
+• Cup 500: ${d.cup500 || 0}
+• Cup 700: ${d.cup700 || 0}
+• Paper M: ${d.paperM || 0}
+• Bag: ${d.bag || 0}
+• Thermal Bag 2 Cup: ${d.thermal2 || 0}
+• Thermal Bag 4 Cup: ${d.thermal4 || 0}
+
+🎈 *CATATAN LAINNYA:*
+• Boneka: ${d.boneka || '-'}
+• Uang Odong-Odong: ${formatRupiah(d.odong)}
+• Catatan: ${d.catatan || '-'}
+----------------------------------
+_Laporan ini telah otomatis tersimpan di Google Sheet._`;
+
+    const urlWA = `https://wa.me/${NO_WA_TOKO}?text=${encodeURIComponent(teksWA)}`;
+    window.open(urlWA, '_blank');
   }
 
   function tutupModal() {
