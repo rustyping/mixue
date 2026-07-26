@@ -309,7 +309,8 @@
 ----------------------------------
 _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
-    const urlWA = `https://wa.me/${NO_WA_TOKO}?text=${encodeURIComponent(teksWA)}`;
+    // Tanpa menyertakan nomor HP agar kasir bisa langsung memilih Grup WA
+    const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
     window.open(urlWA, '_blank');
   }
 
