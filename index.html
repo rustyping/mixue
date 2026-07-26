@@ -25,14 +25,14 @@
     /* Modal / Pop-up Window Styling */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
     .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .modal-header { font-size: 1.2em; font-weight: bold; color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
+    .modal-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #e60012; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
     .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
     .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
     .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
     
     /* Button Group Modal */
-    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 6px; padding: 12px; text-align: center; }
+    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #777; margin-top: 8px; }
   </style>
 </head>
@@ -127,32 +127,31 @@
       <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
     </div>
 
-    <button type="submit" id="btnSubmit">Kirim Laporan Kasir</button>
+    <button type="submit" id="btnNext">Lanjutkan / Cek Summary ➡️</button>
   </form>
-
-  <div id="status"></div>
 </div>
 
-<!-- MODAL / JENDELA POP-UP RINCIAN -->
+<!-- MODAL / JENDELA POP-UP SUMMARY -->
 <div class="modal-overlay" id="modalRincian">
   <div class="modal-content">
-    <div class="modal-header">✅ Laporan Berhasil Terkirim!</div>
-    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Berikut adalah rincian data yang tersimpan:</p>
+    <div class="modal-header">📋 Summary Laporan Kasir</div>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
     
     <table class="summary-table" id="tabelRincian">
       <!-- Data Rincian Ditempel Lewat JS -->
     </table>
 
-    <button type="button" class="btn-wa" onclick="kirimKeWA()">📲 Kirim Laporan ke Whatsapp</button>
-    <button type="button" class="btn-close" onclick="tutupModal()">Selesai & Tutup</button>
+    <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
+
+    <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
+    <button type="button" class="btn-close" id="btnCloseModal" onclick="tutupModal()">Cek Ulang / Edit Form</button>
   </div>
 </div>
 
 <script>
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
-  const NO_WA_TOKO = "6283844611330"; // Format internasional Indonesia
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
 
-  let currentData = {}; // Menyimpan data sementara untuk dikirim ke WA
+  let currentPayload = {};
 
   // Auto Set Hari & Tanggal
   const now = new Date();
@@ -177,18 +176,11 @@
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
   }
 
-  // Submit Form
-  document.getElementById('kasirForm').addEventListener('submit', async function(e) {
+  // Buka Modal Ringkasan Dulu (Belum Kirim Data)
+  document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    const btn = document.getElementById('btnSubmit');
-    const statusDiv = document.getElementById('status');
-    btn.disabled = true;
-    btn.innerText = "Mengirim...";
-    statusDiv.style.color = "blue";
-    statusDiv.innerText = "Prosedur menyimpan data...";
 
-    const payload = {
+    currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
       namaKasir: document.getElementById('namaKasir').value,
@@ -214,35 +206,11 @@
       catatan: document.getElementById('catatan').value
     };
 
-    currentData = payload; // Simpan ke variabel global
+    document.getElementById('modalStatus').innerText = "";
+    document.getElementById('btnSimpanWA').disabled = false;
+    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
 
-    try {
-      const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-
-      const res = await response.json();
-      if (res.status === 'success') {
-        statusDiv.innerText = "";
-        
-        tampilkanRincianModal(payload);
-
-        document.getElementById('kasirForm').reset();
-        document.getElementById('hari').value = hariList[now.getDay()];
-        document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
-        hitungTotal();
-      } else {
-        throw new Error(res.message);
-      }
-    } catch (err) {
-      statusDiv.style.color = "red";
-      statusDiv.innerText = "❌ Gagal mengirim: " + err.message;
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "Kirim Laporan Kasir";
-    }
+    tampilkanRincianModal(currentPayload);
   });
 
   function tampilkanRincianModal(data) {
@@ -272,9 +240,32 @@
     document.getElementById('modalRincian').style.display = 'flex';
   }
 
-  function kirimKeWA() {
-    const d = currentData;
-    const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+  // Simpan ke Google Sheet LALU Buka WA
+  async function simpanDanKirimWA() {
+    const btnWA = document.getElementById('btnSimpanWA');
+    const modalStatus = document.getElementById('modalStatus');
+
+    btnWA.disabled = true;
+    btnWA.innerText = "⏳ Menyimpan Data...";
+    modalStatus.style.color = "blue";
+    modalStatus.innerText = "Mengirim data ke Google Sheet...";
+
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(currentPayload)
+      });
+
+      const res = await response.json();
+
+      if (res.status === 'success') {
+        modalStatus.style.color = "green";
+        modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
+
+        // Rakit Pesan WA
+        const d = currentPayload;
+        const teksWA = `*LAPORAN KASIR MIXUE* 🍦
 ----------------------------------
 📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
 👤 *Kasir:* ${d.namaKasir}
@@ -309,9 +300,28 @@
 ----------------------------------
 _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
-    // Tanpa menyertakan nomor HP agar kasir bisa langsung memilih Grup WA
-    const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
-    window.open(urlWA, '_blank');
+        // Buka WhatsApp (pilih grup manual)
+        const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
+        window.open(urlWA, '_blank');
+
+        // Reset form & tutup modal
+        setTimeout(() => {
+          document.getElementById('kasirForm').reset();
+          document.getElementById('hari').value = hariList[now.getDay()];
+          document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
+          hitungTotal();
+          tutupModal();
+        }, 1500);
+
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err) {
+      modalStatus.style.color = "red";
+      modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
+      btnWA.disabled = false;
+      btnWA.innerText = "📲 Coba Simpan & Kirim WA Lagi";
+    }
   }
 
   function tutupModal() {
