@@ -3,181 +3,377 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Laporan Penjualan Harian</title>
+  <title>Laporan Kasir Mixue</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; color: #333; }
-    .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #2c3e50; }
-    .section-title { margin-top: 25px; font-size: 1.1em; color: #27ae60; border-bottom: 2px solid #27ae60; padding-bottom: 5px; font-weight: bold; }
-    .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-    label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-    input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .total-box { background-color: #e8f8f5; border: 1px solid #2ecc71; padding: 12px; border-radius: 5px; margin-top: 10px; font-size: 1.05em; color: #1e8449; }
-    button { width: 100%; padding: 12px; background-color: #27ae60; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; margin-top: 20px; }
-    button:hover { background-color: #219150; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 15px; }
+    .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #e60012; margin-top: 0; margin-bottom: 5px; }
+    .section-title { font-weight: bold; color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 5px; margin: 20px 0 10px 0; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.88em; color: #333; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; }
+    textarea { resize: vertical; min-height: 70px; }
+    input[readonly] { background-color: #e9ecef; }
+    .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
+    .qty-total-box { background: #e8f8f5; border: 1px solid #2ecc71; padding: 10px; border-radius: 8px; font-size: 1em; font-weight: bold; color: #1e8449; text-align: center; margin: 15px 0; }
+    button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    button:disabled { background-color: #cccccc; }
+    .row-2 { display: flex; gap: 10px; }
+    .row-2 .form-group { flex: 1; }
+
+    /* Modal / Pop-up Window Styling */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+    .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #e60012; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
+    .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
+    .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
+    .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
+    
+    .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
+    .btn-close { background-color: #6c757d; margin-top: 8px; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Form Laporan Harian</h2>
-  <form id="salesForm">
-
-    <!-- Informasiumum -->
-    <div class="grid-2">
+<div class="card">
+  <h2>🍦 Laporan Kasir Mixue</h2>
+  <form id="kasirForm">
+    
+    <!-- INFO KASIR & TANGGAL -->
+    <div class="row-2">
       <div class="form-group">
         <label>Hari</label>
-        <select id="hari" required>
-          <option value="">-- Pilih Hari --</option>
-          <option value="Senin">Senin</option>
-          <option value="Selasa">Selasa</option>
-          <option value="Rabu">Rabu</option>
-          <option value="Kamis">Kamis</option>
-          <option value="Jumat">Jumat</option>
-          <option value="Sabtu">Sabtu</option>
-          <option value="Minggu">Minggu</option>
-        </select>
+        <input type="text" id="hari" required readonly>
       </div>
       <div class="form-group">
         <label>Tanggal</label>
-        <input type="date" id="tanggal" required>
+        <input type="text" id="tanggal" required readonly>
       </div>
     </div>
 
-    <!-- Ringkasan Keuangan -->
-    <div class="section-title">💳 Metode Pembayaran & Omset</div>
-    <div class="grid-2">
-      <div class="form-group"><label>Omset</label><input type="number" id="omset" value="0"></div>
-      <div class="form-group"><label>Cash</label><input type="number" id="cash" value="0"></div>
-      <div class="form-group"><label>QRIS</label><input type="number" id="qris" value="0"></div>
-      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" value="0"></div>
-      <div class="form-group"><label>Shopee</label><input type="number" id="shopee" value="0"></div>
-      <div class="form-group"><label>Tiktok Food</label><input type="number" id="tiktok" value="0"></div>
-      <div class="form-group"><label>Grab</label><input type="number" id="grab" value="0"></div>
-      <div class="form-group"><label>EDC</label><input type="number" id="edc" value="0"></div>
-      <div class="form-group"><label>Lain2</label><input type="number" id="lain2" value="0"></div>
+    <div class="form-group">
+      <label>Nama Kasir / Shift</label>
+      <input type="text" id="namaKasir" placeholder="Contoh: Silva / Dian" required>
     </div>
 
-    <!-- Penjualan Cup & Packaging -->
-    <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
-    <div class="grid-2">
-      <div class="form-group"><label>Cone</label><input type="number" class="qty-calc" id="cone" value="0"></div>
-      <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="cone_lucky_sunday" value="0"></div>
-      <div class="form-group"><label>Cup 400</label><input type="number" class="qty-calc" id="cup400" value="0"></div>
-      <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400_packing" value="0"></div>
-      <div class="form-group"><label>Cup 500</label><input type="number" class="qty-calc" id="cup500" value="0"></div>
-      <div class="form-group"><label>Cup 700</label><input type="number" class="qty-calc" id="cup700" value="0"></div>
-      <div class="form-group"><label>Paper M</label><input type="number" class="qty-calc" id="paper_m" value="0"></div>
-      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" class="qty-calc" id="thermal_2cup" value="0"></div>
-      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" class="qty-calc" id="thermal_4cup" value="0"></div>
-      <div class="form-group"><label>Boneka (Qty)</label><input type="number" class="qty-calc" id="boneka" value="0"></div>
+    <!-- PENDAPATAN -->
+    <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
+    
+    <div class="row-2">
+      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>QRIS</label><input type="number" id="qris" placeholder="0" class="nominal"></div>
     </div>
 
-    <!-- Kotak Total Penjualan Otomatis -->
+    <div class="row-2">
+      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" placeholder="0" class="nominal"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" placeholder="0" class="nominal"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>EDC</label><input type="number" id="edc" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" placeholder="0" class="nominal"></div>
+    </div>
+
     <div class="total-box">
-      <strong>Total Penjualan Item (Kategori Dihitung):</strong> <span id="total_penjualan_display">0</span> Pcs
-      <br><small style="color: #666;">*Catatan: Cone Lucky Sunday & Cup 400 Packing tidak diikutsertakan dalam hitungan total ini.</small>
+      Total Omset: Rp <span id="totalOmset">0</span>
     </div>
 
-    <!-- Detail Tambahan -->
-    <div class="section-title">📝 Detail Tambahan</div>
-    <div class="form-group">
-      <label>Ket. Boneka (Text)</label>
-      <input type="text" id="ket_boneka" placeholder="Contoh: 2 Pcs Boneka Red">
-    </div>
-    <div class="grid-2">
-      <div class="form-group"><label>Odong2</label><input type="number" id="odong2" value="0"></div>
-      <div class="form-group"><label>Nama Kasir</label><input type="text" id="nama_kasir" required></div>
-    </div>
-    <div class="form-group">
-      <label>Note</label>
-      <textarea id="note" rows="2" placeholder="Catatan operasional..."></textarea>
+    <!-- PENJUALAN ITEM & PACKAGING -->
+    <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0"></div>
     </div>
 
-    <button type="submit" id="btnSubmit">Kirim Laporan</button>
+    <div class="row-2">
+      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0" class="item-qty"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Bag (Cup 400 Packing)</label><input type="number" id="bag" placeholder="0" class="item-qty"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0" class="item-qty"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Boneka (Qty)</label>
+      <input type="number" id="bonekaQty" placeholder="0" class="item-qty">
+    </div>
+
+    <!-- BOX TOTAL PENJUALAN (BARU) -->
+    <div class="qty-total-box">
+      Total Penjualan Item: <span id="totalPenjualanQty">0</span> Pcs
+    </div>
+
+    <!-- CATATAN LAINNYA -->
+    <div class="section-title">🎈 Catatan Tambahan</div>
+
+    <div class="form-group">
+      <label>Ket. Boneka (Detail Jenis)</label>
+      <input type="text" id="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
+    </div>
+
+    <div class="form-group">
+      <label>Uang Odong-Odong (Rp)</label>
+      <input type="number" id="odong" placeholder="0">
+    </div>
+
+    <div class="form-group">
+      <label>Catatan Opsional</label>
+      <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
+    </div>
+
+    <button type="submit" id="btnNext">Lanjutkan / Buka Summary ➡️</button>
   </form>
 </div>
 
+<!-- MODAL / JENDELA POP-UP SUMMARY -->
+<div class="modal-overlay" id="modalRincian">
+  <div class="modal-content">
+    <div class="modal-header">📋 Summary Laporan Kasir</div>
+    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
+    
+    <table class="summary-table" id="tabelRincian">
+      <!-- Data Rincian Ditempel Lewat JS -->
+    </table>
+
+    <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
+
+    <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
+    <button type="button" class="btn-close" onclick="tutupModal()">Cek Ulang / Edit Form</button>
+  </div>
+</div>
+
+<!-- IFRAME & FORM TERSEMBUNYI -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
+</form>
+
 <script>
-  // Script Rumus Kalkulasi Total Penjualan
-  function hitungTotalPenjualan() {
-    const getVal = (id) => parseInt(document.getElementById(id).value) || 0;
+  // Isi dengan Web App URL aktif Anda
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  let currentPayload = {};
 
-    // Rumus: cone + cup400 + cup500 + cup700 + paper_m + boneka + thermal_2cup + thermal_4cup
-    const total = getVal('cone') 
-                + getVal('cup400') 
-                + getVal('cup500') 
-                + getVal('cup700') 
-                + getVal('paper_m') 
-                + getVal('boneka') 
-                + getVal('thermal_2cup') 
-                + getVal('thermal_4cup');
+  // Auto Set Hari & Tanggal
+  const now = new Date();
+  const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  document.getElementById('hari').value = hariList[now.getDay()];
+  
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
 
-    document.getElementById('total_penjualan_display').innerText = total;
+  // Hitung Total Omset
+  const nominalInputs = document.querySelectorAll('.nominal');
+  nominalInputs.forEach(input => input.addEventListener('input', hitungTotal));
+
+  function hitungTotal() {
+    let total = 0;
+    nominalInputs.forEach(input => total += Number(input.value) || 0);
+    document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
+    return total;
   }
 
-  // Event listener real-time saat user mengubah input item terkait
-  document.querySelectorAll('.qty-calc').forEach(input => {
-    input.addEventListener('input', hitungTotalPenjualan);
-  });
+  // Hitung Total Penjualan Item (Qty)
+  const itemInputs = document.querySelectorAll('.item-qty');
+  itemInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
 
-  // Kirim Data ke Apps Script
-  document.getElementById('salesForm').addEventListener('submit', function(e) {
+  function hitungTotalPenjualan() {
+    let totalQty = 0;
+    itemInputs.forEach(input => totalQty += Number(input.value) || 0);
+    document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
+    return totalQty;
+  }
+
+  function formatRupiah(val) {
+    return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
+  }
+
+  // Buka Modal Summary
+  document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    const SCRIPT_URL = 'GANTI_DENGAN_URL_DEPLOYMENT_APPS_SCRIPT_ANDA';
-    const btn = document.getElementById('btnSubmit');
-    btn.innerText = 'Mengirim...';
-    btn.disabled = true;
 
-    const payload = {
+    currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
-      omset: parseInt(document.getElementById('omset').value) || 0,
-      cash: parseInt(document.getElementById('cash').value) || 0,
-      qris: parseInt(document.getElementById('qris').value) || 0,
-      gojek: parseInt(document.getElementById('gojek').value) || 0,
-      shopee: parseInt(document.getElementById('shopee').value) || 0,
-      tiktok: parseInt(document.getElementById('tiktok').value) || 0,
-      grab: parseInt(document.getElementById('grab').value) || 0,
-      edc: parseInt(document.getElementById('edc').value) || 0,
-      lain2: parseInt(document.getElementById('lain2').value) || 0,
-      cone: parseInt(document.getElementById('cone').value) || 0,
-      cone_lucky_sunday: parseInt(document.getElementById('cone_lucky_sunday').value) || 0,
-      cup400: parseInt(document.getElementById('cup400').value) || 0,
-      cup400_packing: parseInt(document.getElementById('cup400_packing').value) || 0,
-      cup500: parseInt(document.getElementById('cup500').value) || 0,
-      cup700: parseInt(document.getElementById('cup700').value) || 0,
-      paper_m: parseInt(document.getElementById('paper_m').value) || 0,
-      thermal_2cup: parseInt(document.getElementById('thermal_2cup').value) || 0,
-      thermal_4cup: parseInt(document.getElementById('thermal_4cup').value) || 0,
-      boneka: parseInt(document.getElementById('boneka').value) || 0,
-      ket_boneka: document.getElementById('ket_boneka').value,
-      odong2: parseInt(document.getElementById('odong2').value) || 0,
-      note: document.getElementById('note').value,
-      nama_kasir: document.getElementById('nama_kasir').value
+      namaKasir: document.getElementById('namaKasir').value,
+      omset: hitungTotal(),
+      cash: document.getElementById('cash').value,
+      qris: document.getElementById('qris').value,
+      gojek: document.getElementById('gojek').value,
+      shopee: document.getElementById('shopee').value,
+      tiktok: document.getElementById('tiktok').value,
+      grab: document.getElementById('grab').value,
+      edc: document.getElementById('edc').value,
+      lain: document.getElementById('lain').value,
+      odong: document.getElementById('odong').value,
+      cone: document.getElementById('cone').value,
+      coneLucky: document.getElementById('coneLucky').value,
+      cup400: document.getElementById('cup400').value,
+      cup400Packing: document.getElementById('cup400Packing').value,
+      cup500: document.getElementById('cup500').value,
+      cup700: document.getElementById('cup700').value,
+      paperM: document.getElementById('paperM').value,
+      bag: document.getElementById('bag').value,
+      thermal2: document.getElementById('thermal2').value,
+      thermal4: document.getElementById('thermal4').value,
+      bonekaQty: document.getElementById('bonekaQty').value,
+      totalPenjualan: hitungTotalPenjualan(),
+      boneka: document.getElementById('boneka').value,
+      catatan: document.getElementById('catatan').value
     };
 
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-      alert('Berhasil: ' + res.message);
-      document.getElementById('salesForm').reset();
-      hitungTotalPenjualan();
-    })
-    .catch(err => {
-      alert('Gagal mengirim data. Periksa koneksi atau URL Apps Script.');
-      console.error(err);
-    })
-    .finally(() => {
-      btn.innerText = 'Kirim Laporan';
-      btn.disabled = false;
-    });
+    document.getElementById('modalStatus').innerText = "";
+    document.getElementById('btnSimpanWA').disabled = false;
+    document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
+
+    tampilkanRincianModal(currentPayload);
   });
+
+  function tampilkanRincianModal(data) {
+    const html = `
+      <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
+      <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
+      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
+      <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
+      <tr><td>QRIS</td><td>${formatRupiah(data.qris)}</td></tr>
+      <tr><td>Gojek</td><td>${formatRupiah(data.gojek)}</td></tr>
+      <tr><td>ShopeeFood</td><td>${formatRupiah(data.shopee)}</td></tr>
+      <tr><td>TikTok Food</td><td>${formatRupiah(data.tiktok)}</td></tr>
+      <tr><td>GrabFood</td><td>${formatRupiah(data.grab)}</td></tr>
+      <tr><td>EDC</td><td>${formatRupiah(data.edc)}</td></tr>
+      <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
+      <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
+      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
+      <tr><td>Cone / Cone Lucky</td><td>${data.cone||0} / ${data.coneLucky||0}</td></tr>
+      <tr><td>Cup 400 / Packing / 500 / 700</td><td>${data.cup400||0} / ${data.cup400Packing||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
+      <tr><td>Paper M / Bag / Thermal (2/4)</td><td>${data.paperM||0} / ${data.bag||0} / ${data.thermal2||0} / ${data.thermal4||0}</td></tr>
+      <tr><td>Boneka (Qty)</td><td>${data.bonekaQty||0} Pcs</td></tr>
+      <tr style="background:#e8f8f5;"><td style="color:#1e8449; font-weight:bold;">TOTAL PENJUALAN ITEM</td><td style="color:#1e8449; font-weight:bold;">${data.totalPenjualan} Pcs</td></tr>
+      <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
+      <tr><td>Ket. Boneka</td><td>${data.boneka || '-'}</td></tr>
+      <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
+      <tr><td>Catatan</td><td>${data.catatan || '-'}</td></tr>
+    `;
+    
+    document.getElementById('tabelRincian').innerHTML = html;
+    document.getElementById('modalRincian').style.display = 'flex';
+  }
+
+  // SIMPAN DAN KIRIM KE WA
+  function simpanDanKirimWA() {
+    const btnSimpan = document.getElementById('btnSimpanWA');
+    const modalStatus = document.getElementById('modalStatus');
+
+    btnSimpan.disabled = true;
+    btnSimpan.innerText = "⏳ Menyimpan Data...";
+    modalStatus.style.color = "blue";
+    modalStatus.innerText = "Mengirim data ke Google Sheet...";
+
+    try {
+      // 1. Submit hidden form ke iframe
+      const hiddenForm = document.getElementById('hiddenGoogleForm');
+      hiddenForm.action = WEB_APP_URL; 
+      hiddenForm.innerHTML = ''; 
+
+      for (const key in currentPayload) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = currentPayload[key];
+        hiddenForm.appendChild(input);
+      }
+
+      hiddenForm.submit();
+
+      modalStatus.style.color = "green";
+      modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
+
+      // 2. Format Teks WhatsApp
+      const d = currentPayload;
+      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+----------------------------------
+📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
+👤 *Kasir:* ${d.namaKasir}
+
+💵 *RINCIAN PENDAPATAN:*
+• Cash: ${formatRupiah(d.cash)}
+• QRIS: ${formatRupiah(d.qris)}
+• Gojek: ${formatRupiah(d.gojek)}
+• ShopeeFood: ${formatRupiah(d.shopee)}
+• TikTok Food: ${formatRupiah(d.tiktok)}
+• GrabFood: ${formatRupiah(d.grab)}
+• EDC: ${formatRupiah(d.edc)}
+• Lain-lain: ${formatRupiah(d.lain)}
+----------------------------------
+💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
+----------------------------------
+
+📦 *PENJUALAN CUP & ITEM:*
+• Cone: ${d.cone || 0}
+• Cone Lucky Sunday: ${d.coneLucky || 0}
+• Cup 400: ${d.cup400 || 0}
+• Cup 400 Packing: ${d.cup400Packing || 0}
+• Cup 500: ${d.cup500 || 0}
+• Cup 700: ${d.cup700 || 0}
+• Paper M: ${d.paperM || 0}
+• Bag: ${d.bag || 0}
+• Thermal Bag 2 Cup: ${d.thermal2 || 0}
+• Thermal Bag 4 Cup: ${d.thermal4 || 0}
+• Boneka: ${d.bonekaQty || 0} Pcs
+----------------------------------
+📊 *TOTAL PENJUALAN ITEM: ${d.totalPenjualan} Pcs*
+----------------------------------
+
+🎈 *CATATAN LAINNYA:*
+• Ket. Boneka: ${d.boneka || '-'}
+• Uang Odong-Odong: ${formatRupiah(d.odong)}
+• Catatan: ${d.catatan || '-'}
+----------------------------------
+_Laporan ini telah otomatis tersimpan di Google Sheet._`;
+
+      // 3. Buka WhatsApp
+      const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
+      window.open(urlWA, '_blank');
+
+      // 4. Reset Form
+      setTimeout(() => {
+        document.getElementById('kasirForm').reset();
+        document.getElementById('hari').value = hariList[now.getDay()];
+        document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
+        hitungTotal();
+        hitungTotalPenjualan();
+        tutupModal();
+      }, 1500);
+
+    } catch (err) {
+      modalStatus.style.color = "red";
+      modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
+      btnSimpan.disabled = false;
+      btnSimpan.innerText = "📲 Coba Simpan & Kirim WA Lagi";
+    }
+  }
+
+  function tutupModal() {
+    document.getElementById('modalRincian').style.display = 'none';
+  }
 </script>
 
 </body>
