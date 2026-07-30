@@ -224,19 +224,20 @@
 
   // --- FUNGSI FORMAT ANGKAT DENGAN TITIK (RIBUAN) ---
   function formatAngkaRibu(nilai) {
-    let raw = nilai.toString().replace(/[^0-9]/g, '');
+    let raw = nilai.toString().replace(/[^0-9]/g, ''); // Hapus semua karakter non-angka
     if (!raw) return '';
-    return parseInt(raw, 10).toLocaleString('id-ID');
+    return parseInt(raw, 10).toLocaleString('id-ID'); // Tambah pemisah titik
   }
 
   function cleanNumber(nilai) {
-    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0;
+    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0; // Ubah teks ber-titik kembali ke angka murni
   }
 
   // Event listener untuk format otomatis input nominal
   const allNominalInputs = document.querySelectorAll('.nominal, .nominal-single');
   allNominalInputs.forEach(input => {
     input.addEventListener('input', function(e) {
+            let cursorPosition = this.selectionStart;
       this.value = formatAngkaRibu(this.value);
       hitungTotal();
     });
@@ -270,6 +271,7 @@
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // Data dikonversi ke angka murni (tanpa titik) sebelum masuk payload/excel
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
