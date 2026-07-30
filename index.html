@@ -7,11 +7,11 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; }
-    .card { position: relative; max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    
+    .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
+
     /* Tag Versi di Pojok Kanan Atas */
     .version-tag { position: absolute; top: 12px; right: 15px; font-size: 0.75em; color: #888; font-weight: 600; }
-
+    
     h2 { text-align: center; color: #e60012; margin-top: 0; margin-bottom: 5px; }
     .section-title { font-weight: bold; color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 5px; margin: 20px 0 10px 0; }
     .form-group { margin-bottom: 12px; }
@@ -43,7 +43,7 @@
 
 <div class="card">
   <span class="version-tag">v1.01</span>
-  <h2>🍦 Laporan Kasir Mixue Kebalen</h2>
+  <h2>🍦 Laporan Kasir Mixue</h2>
   <form id="kasirForm">
     
     <!-- INFO KASIR & TANGGAL -->
@@ -67,23 +67,23 @@
     <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
     
     <div class="row-2">
-      <div class="form-group"><label>Cash (Tunai)</label><input type="number" id="cash" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>QRIS</label><input type="number" id="qris" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Cash (Tunai)</label><input type="text" id="cash" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>QRIS</label><input type="text" id="qris" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Gojek</label><input type="number" id="gojek" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>ShopeeFood</label><input type="number" id="shopee" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Gojek</label><input type="text" id="gojek" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>ShopeeFood</label><input type="text" id="shopee" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>TikTok Food</label><input type="number" id="tiktok" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>GrabFood</label><input type="number" id="grab" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>TikTok Food</label><input type="text" id="tiktok" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>GrabFood</label><input type="text" id="grab" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>EDC</label><input type="number" id="edc" placeholder="0" class="nominal"></div>
-      <div class="form-group"><label>Lain-Lain</label><input type="number" id="lain" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>EDC</label><input type="text" id="edc" placeholder="0" class="nominal"></div>
+      <div class="form-group"><label>Lain-Lain</label><input type="text" id="lain" placeholder="0" class="nominal"></div>
     </div>
 
     <div class="total-box">
@@ -95,12 +95,12 @@
 
     <div class="row-2">
       <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0" class="item-qty"></div>
-      <div class="form-group"><label>**Cone Lucky Sunday**</label><input type="number" id="coneLucky" placeholder="0"></div>
+      <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0" class="item-qty"></div>
     </div>
 
     <div class="row-2">
       <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-qty"></div>
-      <div class="form-group"><label>**Cup 400 Packing**</label><input type="number" id="cup400Packing" placeholder="0"></div>
+      <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0" class="item-qty"></div>
     </div>
 
     <div class="row-2">
@@ -137,7 +137,7 @@
 
     <div class="form-group">
       <label>Uang Odong-Odong (Rp)</label>
-      <input type="number" id="odong" placeholder="0">
+      <input type="text" id="odong" placeholder="0" class="nominal-single">
     </div>
 
     <div class="form-group">
@@ -172,7 +172,6 @@
 </form>
 
 <script>
-  // Isi dengan Web App URL aktif Anda
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
   let currentPayload = {};
 
@@ -184,13 +183,32 @@
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
 
+  // --- FUNGSI FORMAT ANGKAT DENGAN TITIK (RIBUAN) ---
+  function formatAngkaRibu(nilai) {
+    let raw = nilai.toString().replace(/[^0-9]/g, ''); // Hapus semua karakter non-angka
+    if (!raw) return '';
+    return parseInt(raw, 10).toLocaleString('id-ID'); // Tambah pemisah titik
+  }
+
+  function cleanNumber(nilai) {
+    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0; // Ubah teks ber-titik kembali ke angka murni
+  }
+
+  // Event listener untuk format otomatis input nominal
+  const allNominalInputs = document.querySelectorAll('.nominal, .nominal-single');
+  allNominalInputs.forEach(input => {
+    input.addEventListener('input', function(e) {
+      let cursorPosition = this.selectionStart;
+      this.value = formatAngkaRibu(this.value);
+      hitungTotal();
+    });
+  });
+
   // Hitung Total Omset
   const nominalInputs = document.querySelectorAll('.nominal');
-  nominalInputs.forEach(input => input.addEventListener('input', hitungTotal));
-
   function hitungTotal() {
     let total = 0;
-    nominalInputs.forEach(input => total += Number(input.value) || 0);
+    nominalInputs.forEach(input => total += cleanNumber(input.value));
     document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
     return total;
   }
@@ -214,20 +232,21 @@
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // Data dikonversi ke angka murni (tanpa titik) sebelum masuk payload/excel
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
       namaKasir: document.getElementById('namaKasir').value,
       omset: hitungTotal(),
-      cash: document.getElementById('cash').value,
-      qris: document.getElementById('qris').value,
-      gojek: document.getElementById('gojek').value,
-      shopee: document.getElementById('shopee').value,
-      tiktok: document.getElementById('tiktok').value,
-      grab: document.getElementById('grab').value,
-      edc: document.getElementById('edc').value,
-      lain: document.getElementById('lain').value,
-      odong: document.getElementById('odong').value,
+      cash: cleanNumber(document.getElementById('cash').value),
+      qris: cleanNumber(document.getElementById('qris').value),
+      gojek: cleanNumber(document.getElementById('gojek').value),
+      shopee: cleanNumber(document.getElementById('shopee').value),
+      tiktok: cleanNumber(document.getElementById('tiktok').value),
+      grab: cleanNumber(document.getElementById('grab').value),
+      edc: cleanNumber(document.getElementById('edc').value),
+      lain: cleanNumber(document.getElementById('lain').value),
+      odong: cleanNumber(document.getElementById('odong').value),
       cone: document.getElementById('cone').value,
       coneLucky: document.getElementById('coneLucky').value,
       cup400: document.getElementById('cup400').value,
@@ -311,7 +330,7 @@
 
       // 2. Format Teks WhatsApp
       const d = currentPayload;
-      const teksWA = `*LAPORAN KASIR MIXUE KEBALEN* 🍦
+      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
 ----------------------------------
 📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
 👤 *Kasir:* ${d.namaKasir}
@@ -331,7 +350,9 @@
 
 📦 *PENJUALAN CUP & ITEM:*
 • Cone: ${d.cone || 0}
+• Cone Lucky Sunday: ${d.coneLucky || 0}
 • Cup 400: ${d.cup400 || 0}
+• Cup 400 Packing: ${d.cup400Packing || 0}
 • Cup 500: ${d.cup500 || 0}
 • Cup 700: ${d.cup700 || 0}
 • Paper M: ${d.paperM || 0}
@@ -341,8 +362,6 @@
 ----------------------------------
 📊 *TOTAL PENJUALAN ITEM: ${d.totalPenjualan} Pcs*
 ----------------------------------
-• Cone Lucky Sunday: ${d.coneLucky || 0}
-• Cup 400 Packing: ${d.cup400Packing || 0}
 
 🎈 *CATATAN LAINNYA:*
 • Ket. Boneka: ${d.boneka || '-'}
