@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Kasir Mixue</title>
+  <title>Laporan Kasir Mixue Kebalen</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; }
+    
+    /* Layout Utama */
     .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
 
     /* Tag Versi di Pojok Kanan Atas */
@@ -26,10 +28,11 @@
     .row-2 { display: flex; gap: 10px; }
     .row-2 .form-group { flex: 1; }
 
-    /* Modal / Pop-up Window Styling */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+    /* Styling Pop-up (Password & Summary) */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
     .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .modal-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #e60012; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
+    
     .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
     .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
     .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
@@ -37,12 +40,31 @@
     
     .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
     .btn-close { background-color: #6c757d; margin-top: 8px; }
+
+    /* Modal Password Specific */
+    #modalPassword { display: flex; } /* Muncul pertama kali */
+    .login-box { text-align: center; }
+    .login-box input { text-align: center; font-size: 1.3em; letter-spacing: 5px; margin-top: 10px; }
+    .error-msg { color: #e60012; font-size: 0.85em; font-weight: bold; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
 
+<!-- POP-UP LAYAR PASSWORD (KUNCI AKSES) -->
+<div class="modal-overlay" id="modalPassword">
+  <div class="modal-content login-box">
+    <div class="modal-header">🔒 Akses Kasir Mixue Kebalen</div>
+    <p style="font-size: 0.9em; color: #555;">Masukkan Kode Akses untuk Membuka Form Laporan:</p>
+    <form id="passForm">
+      <input type="password" id="inputPass" placeholder="****" maxlength="8" required autofocus>
+      <div class="error-msg" id="errorPass">❌ Kode Akses Salah!</div>
+      <button type="submit" style="margin-top: 15px;">Masuk / Buka Form 🔓</button>
+    </form>
+  </div>
+</div>
+
 <div class="card">
-  <span class="version-tag">v1.02</span>
+  <span class="version-tag">v1.03</span>
   <h2>🍦 Laporan Kasir Mixue Kebalen</h2>
   <form id="kasirForm">
     
@@ -173,7 +195,24 @@
 
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  const PASSWORD_RAHASIA = "3108";
   let currentPayload = {};
+
+  // --- CEK PASSWORD ---
+  document.getElementById('passForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const passInput = document.getElementById('inputPass').value;
+    const errorMsg = document.getElementById('errorPass');
+
+    if (passInput === PASSWORD_RAHASIA) {
+      document.getElementById('modalPassword').style.display = 'none';
+      errorMsg.style.display = 'none';
+    } else {
+      errorMsg.style.display = 'block';
+      document.getElementById('inputPass').value = '';
+      document.getElementById('inputPass').focus();
+    }
+  });
 
   // Auto Set Hari & Tanggal
   const now = new Date();
@@ -185,20 +224,19 @@
 
   // --- FUNGSI FORMAT ANGKAT DENGAN TITIK (RIBUAN) ---
   function formatAngkaRibu(nilai) {
-    let raw = nilai.toString().replace(/[^0-9]/g, ''); // Hapus semua karakter non-angka
+    let raw = nilai.toString().replace(/[^0-9]/g, '');
     if (!raw) return '';
-    return parseInt(raw, 10).toLocaleString('id-ID'); // Tambah pemisah titik
+    return parseInt(raw, 10).toLocaleString('id-ID');
   }
 
   function cleanNumber(nilai) {
-    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0; // Ubah teks ber-titik kembali ke angka murni
+    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0;
   }
 
   // Event listener untuk format otomatis input nominal
   const allNominalInputs = document.querySelectorAll('.nominal, .nominal-single');
   allNominalInputs.forEach(input => {
     input.addEventListener('input', function(e) {
-      let cursorPosition = this.selectionStart;
       this.value = formatAngkaRibu(this.value);
       hitungTotal();
     });
@@ -232,7 +270,6 @@
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Data dikonversi ke angka murni (tanpa titik) sebelum masuk payload/excel
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
