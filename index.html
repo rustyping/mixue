@@ -42,8 +42,8 @@
 <body>
 
 <div class="card">
-  <span class="version-tag">v1.01</span>
-  <h2>🍦 Laporan Kasir Mixue</h2>
+  <span class="version-tag">v1.02</span>
+  <h2>🍦 Laporan Kasir Mixue Kebalen</h2>
   <form id="kasirForm">
     
     <!-- INFO KASIR & TANGGAL -->
@@ -330,7 +330,7 @@
 
       // 2. Format Teks WhatsApp
       const d = currentPayload;
-      const teksWA = `*LAPORAN KASIR MIXUE* 🍦
+      const teksWA = `*LAPORAN KASIR MIXUE KEBALEN* 🍦
 ----------------------------------
 📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
 👤 *Kasir:* ${d.namaKasir}
@@ -350,9 +350,7 @@
 
 📦 *PENJUALAN CUP & ITEM:*
 • Cone: ${d.cone || 0}
-• Cone Lucky Sunday: ${d.coneLucky || 0}
 • Cup 400: ${d.cup400 || 0}
-• Cup 400 Packing: ${d.cup400Packing || 0}
 • Cup 500: ${d.cup500 || 0}
 • Cup 700: ${d.cup700 || 0}
 • Paper M: ${d.paperM || 0}
@@ -362,6 +360,8 @@
 ----------------------------------
 📊 *TOTAL PENJUALAN ITEM: ${d.totalPenjualan} Pcs*
 ----------------------------------
+• Cone Lucky Sunday: ${d.coneLucky || 0}
+• Cup 400 Packing: ${d.cup400Packing || 0}
 
 🎈 *CATATAN LAINNYA:*
 • Ket. Boneka: ${d.boneka || '-'}
