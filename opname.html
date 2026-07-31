@@ -21,9 +21,36 @@
     * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
     body { background-color: var(--bg); color: var(--text); padding: 12px; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
     .app-container { max-width: 600px; margin: 0 auto; }
-    .header-card { background: linear-gradient(135deg, #e60012 0%, #99000c 100%); color: #ffffff; border-radius: var(--radius); padding: 18px 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(230, 0, 18, 0.25); }
-    .header-card h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .header-card p { font-size: 12px; opacity: 0.9; }
+    
+    /* HEADER WITH FLEX FOR RESET BUTTON */
+    .header-card { 
+      background: linear-gradient(135deg, #e60012 0%, #99000c 100%); 
+      color: #ffffff; 
+      border-radius: var(--radius); 
+      padding: 16px; 
+      margin-bottom: 14px; 
+      box-shadow: 0 4px 14px rgba(230, 0, 18, 0.25); 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+    .header-info p { font-size: 11px; opacity: 0.9; }
+    
+    .btn-reset-top {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s ease;
+    }
+    .btn-reset-top:active { background: rgba(255, 255, 255, 0.4); }
+
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
     .section-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
     .form-group { margin-bottom: 12px; }
@@ -49,9 +76,8 @@
     .summary-info { font-size: 12px; color: var(--text-muted); }
     .summary-info strong { color: var(--primary); font-size: 15px; }
     .btn-submit { background-color: var(--primary); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; max-width: 200px; }
-    .btn-submit:disabled { background-color: #cbd5e1; cursor: not-allowed; }
     
-    /* STYLING MODAL KONFIRMASI */
+    /* MODAL KONFIRMASI */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: #ffffff; width: 100%; max-width: 480px; max-height: 85vh; border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
@@ -61,8 +87,9 @@
     .modal-body { padding: 16px; overflow-y: auto; flex: 1; }
     .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .summary-table th { text-align: left; padding: 8px; background: #f1f5f9; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-    .summary-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
-    .summary-table td.qty-col { text-align: right; font-weight: 700; color: var(--primary); }
+    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    .summary-table td.qty-col { text-align: right; }
+
     .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #f8fafc; }
     .btn-cancel { background: #e2e8f0; color: #334155; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-confirm { background: var(--primary); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
@@ -75,9 +102,13 @@
 <body>
 
 <div class="app-container">
+  <!-- HEADER DENGAN TOMBOL RESET DI KANAN ATAS -->
   <div class="header-card">
-    <h1>Form Stok Opname</h1>
-    <p id="currentDateTime">Memuat tanggal & waktu...</p>
+    <div class="header-info">
+      <h1>Form Stok Opname</h1>
+      <p id="currentDateTime">Memuat tanggal & waktu...</p>
+    </div>
+    <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
   </div>
 
   <form id="opnameForm">
@@ -85,11 +116,11 @@
       <div class="section-title">📌 Informasi Petugas</div>
       <div class="form-group">
         <label for="checker">Nama Checker / Pegawai *</label>
-        <input type="text" id="checker" required placeholder="Masukkan nama Anda (misal: Dila / Silva)">
+        <input type="text" id="checker" required placeholder="Masukkan nama Anda (misal: Dila / Silva)" oninput="saveDraft()">
       </div>
       <div class="form-group">
         <label for="catatanUmum">Catatan Shift (Opsional)</label>
-        <textarea id="catatanUmum" rows="2" placeholder="Tuliskan catatan kondisi toko / shift jika ada..."></textarea>
+        <textarea id="catatanUmum" rows="2" placeholder="Tuliskan catatan kondisi toko / shift jika ada..." oninput="saveDraft()"></textarea>
       </div>
     </div>
 
@@ -118,7 +149,7 @@
   </form>
 </div>
 
-<!-- MODAL POPUP KONFIRMASI -->
+<!-- MODAL POPUP KONFIRMASI RINGKASAN -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -129,12 +160,12 @@
       <table class="summary-table">
         <thead>
           <tr>
-            <th>Nama Barang</th>
-            <th style="text-align: right;">Total Hasil (Angka)</th>
+            <th>Barang & Rincian Input</th>
+            <th style="text-align: right;">Total Hasil</th>
           </tr>
         </thead>
         <tbody id="summaryTableBody">
-          <!-- Item terisi akan disisipkan via JavaScript -->
+          <!-- Item terisi disisipkan via JavaScript -->
         </tbody>
       </table>
     </div>
@@ -147,6 +178,7 @@
 
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  const STORAGE_KEY = "mixue_stok_opname_draft";
   let rawKatalog = [];
   let currentPayload = null;
 
@@ -163,6 +195,7 @@
       .then(res => {
         if (res.status === 'success') {
           renderKatalog(res.data);
+          loadDraft(); // Load data inputan terkunci dari localStorage
         } else {
           throw new Error("Gagal mengambil data katalog");
         }
@@ -225,7 +258,7 @@
     updateCounter();
   }
 
-  function calculateRow(index) {
+  function calculateRow(index, triggerSave = true) {
     const item = rawKatalog[index];
     
     const v3 = parseFloat(document.getElementById(`stok3_${index}`)?.value || 0);
@@ -241,7 +274,6 @@
     document.getElementById(`totalPcs_${index}`).innerText = `${totalPcs} ${item.satuan1 || 'Pcs'}`;
 
     const card = document.getElementById(`card_${index}`);
-
     if (v3 > 0 || v2 > 0 || v1 > 0) {
       card.classList.add('filled');
     } else {
@@ -249,6 +281,7 @@
     }
 
     updateCounter();
+    if (triggerSave) saveDraft();
   }
 
   function filterKatalog() {
@@ -271,7 +304,76 @@
     document.getElementById('filledCount').innerText = count;
   }
 
-  // TAMPILKAN POPUP KONFIRMASI SEBELUM DISIMPAN
+  // LOGIK SIMPAN & BACA LOCAL STORAGE (INPUTAN TERKUNCI)
+  function saveDraft() {
+    const draft = {
+      checker: document.getElementById('checker').value,
+      catatanUmum: document.getElementById('catatanUmum').value,
+      inputs: {}
+    };
+
+    rawKatalog.forEach((item, index) => {
+      const v3 = document.getElementById(`stok3_${index}`)?.value || '';
+      const v2 = document.getElementById(`stok2_${index}`)?.value || '';
+      const v1 = document.getElementById(`stok1_${index}`)?.value || '';
+
+      if (v3 !== '' || v2 !== '' || v1 !== '') {
+        draft.inputs[item.namaBarang] = { v3, v2, v1 };
+      }
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }
+
+  function loadDraft() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+      const draft = JSON.parse(saved);
+      if (draft.checker) document.getElementById('checker').value = draft.checker;
+      if (draft.catatanUmum) document.getElementById('catatanUmum').value = draft.catatanUmum;
+
+      if (draft.inputs) {
+        rawKatalog.forEach((item, index) => {
+          const itemData = draft.inputs[item.namaBarang];
+          if (itemData) {
+            if (itemData.v3 !== undefined && document.getElementById(`stok3_${index}`)) {
+              document.getElementById(`stok3_${index}`).value = itemData.v3;
+            }
+            if (itemData.v2 !== undefined && document.getElementById(`stok2_${index}`)) {
+              document.getElementById(`stok2_${index}`).value = itemData.v2;
+            }
+            if (itemData.v1 !== undefined && document.getElementById(`stok1_${index}`)) {
+              document.getElementById(`stok1_${index}`).value = itemData.v1;
+            }
+            calculateRow(index, false);
+          }
+        });
+      }
+    } catch(e) {
+      console.error("Gagal memuat draf tersimpan", e);
+    }
+  }
+
+  // FUNGSI MENGOSONGKAN INPUTAN (RESET)
+  function resetAllInputs() {
+    if (confirm("Apakah Anda yakin ingin mengosongkan semua inputan stok opname?")) {
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('opnameForm').reset();
+      
+      rawKatalog.forEach((item, index) => {
+        const card = document.getElementById(`card_${index}`);
+        if (card) card.classList.remove('filled');
+        const totalSpan = document.getElementById(`totalPcs_${index}`);
+        if (totalSpan) totalSpan.innerText = `0 ${item.satuan1 || 'Pcs'}`;
+      });
+      
+      updateCounter();
+    }
+  }
+
+  // TAMPILKAN POPUP KONFIRMASI SESUAI INPUTAN RINCI PEGAWAI
   function showConfirmationModal() {
     const checker = document.getElementById('checker').value.trim();
     if (!checker) {
@@ -294,6 +396,14 @@
         const k1 = item.konversi1 || 1;
         const totalPcs = (v3 * k3) + (v2 * k2) + (v1 * k1);
 
+        // FORMAT RINCIAN INPUT PEGAWAI: misal "5 dus 1 pack 5pcs"
+        let rincian = [];
+        if (v3 > 0 && item.satuan3) rincian.push(`${v3} ${item.satuan3}`);
+        if (v2 > 0 && item.satuan2) rincian.push(`${v2} ${item.satuan2}`);
+        if (v1 > 0) rincian.push(`${v1} ${item.satuan1 || 'Pcs'}`);
+
+        const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
+
         itemsPayload.push({
           namaBarang: item.namaBarang,
           totalSatuan1: totalPcs
@@ -301,8 +411,16 @@
 
         tbodyHtml += `
           <tr>
-            <td>${item.namaBarang}</td>
-            <td class="qty-col">${totalPcs}</td>
+            <td>
+              <div style="font-weight:700; color:var(--text); font-size:13px;">${item.namaBarang}</div>
+              <div style="font-size:12px; color:#475569; margin-top:3px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:inline-block;">
+                Input: <strong>${rincianStr}</strong>
+              </div>
+            </td>
+            <td class="qty-col">
+              <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Total</span><br>
+              <strong style="color:var(--primary); font-size:14px;">${totalPcs} ${item.satuan1 || 'Pcs'}</strong>
+            </td>
           </tr>
         `;
       }
@@ -328,7 +446,7 @@
     document.getElementById('confirmModal').classList.remove('active');
   }
 
-  // KIRIM DATA FINAL KE GOOGLE SHEET
+  // KIRIM DATA FINAL KE GOOGLE SHEET & HAPUS DRAFT
   function submitFinalData() {
     if (!currentPayload) return;
 
@@ -344,6 +462,10 @@
     .then(res => {
       if (res.status === 'success') {
         alert(res.message);
+        
+        // Bersihkan LocalStorage setelah berhasil simpan ke sheet
+        localStorage.removeItem(STORAGE_KEY);
+        
         closeConfirmationModal();
         document.getElementById('opnameForm').reset();
         
