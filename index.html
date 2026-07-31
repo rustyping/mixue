@@ -42,7 +42,7 @@
     .btn-close { background-color: #6c757d; margin-top: 8px; }
 
     /* Modal Password Specific */
-    #modalPassword { display: flex; } /* Muncul pertama kali */
+    #modalPassword { display: flex; }
     .login-box { text-align: center; }
     .login-box input { text-align: center; font-size: 1.3em; letter-spacing: 5px; margin-top: 10px; }
     .error-msg { color: #e60012; font-size: 0.85em; font-weight: bold; margin-top: 8px; display: none; }
@@ -115,46 +115,32 @@
     <!-- PENJUALAN ITEM & PACKAGING -->
     <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
 
-<div class="row-2">
-      <!-- DITAMBAH class "item-count" -->
-      <div class="form-group"><label>Cone</label><input type="number" id="cone" class="item-count" placeholder="0"></div>
-      
-      <!-- TETAP class "item-qty" (Akan terlewati dari hitungan total) -->
-      <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0" class="item-qty"></div>
+    <div class="row-2">
+      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0" class="item-count"></div>
+      <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0"></div>
     </div>
 
     <div class="row-2">
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-count"></div>
-      
-      <!-- TETAP class "item-qty" (Akan terlewati dari hitungan total) -->
-      <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0" class="item-qty"></div>
+      <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0"></div>
     </div>
 
     <div class="row-2">
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0" class="item-count"></div>
-      
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="row-2">
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="row-2">
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0" class="item-count"></div>
-      
-      <!-- UBAH: item-qty -> item-count -->
       <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="form-group">
       <label>Boneka (Qty)</label>
-      <!-- UBAH: item-qty -> item-count -->
       <input type="number" id="bonekaQty" placeholder="0" class="item-count">
     </div>
 
@@ -238,20 +224,19 @@
 
   // --- FUNGSI FORMAT ANGKAT DENGAN TITIK (RIBUAN) ---
   function formatAngkaRibu(nilai) {
-    let raw = nilai.toString().replace(/[^0-9]/g, ''); // Hapus semua karakter non-angka
+    let raw = nilai.toString().replace(/[^0-9]/g, '');
     if (!raw) return '';
-    return parseInt(raw, 10).toLocaleString('id-ID'); // Tambah pemisah titik
+    return parseInt(raw, 10).toLocaleString('id-ID');
   }
 
   function cleanNumber(nilai) {
-    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0; // Ubah teks ber-titik kembali ke angka murni
+    return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0;
   }
 
   // Event listener untuk format otomatis input nominal
   const allNominalInputs = document.querySelectorAll('.nominal, .nominal-single');
   allNominalInputs.forEach(input => {
     input.addEventListener('input', function(e) {
-            let cursorPosition = this.selectionStart;
       this.value = formatAngkaRibu(this.value);
       hitungTotal();
     });
@@ -266,23 +251,19 @@
     return total;
   }
 
-  // Hitung Total Penjualan Item (Qty)
-  const itemInputs = document.querySelectorAll('.item-qty');
-  itemInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
+  // Hitung Total Penjualan Item (HANYA MENGHITUNG ITEM DENGAN CLASS 'item-count')
+  // Cone Lucky Sunday & Cup 400 Packing TIDAK termasuk di sini
+  const itemCountInputs = document.querySelectorAll('.item-count');
+  const allQtyInputs = document.querySelectorAll('input[type="number"]');
 
-function hitungTotalPenjualan() {
-  let totalQty = 0;
-  // Menjumlahkan item utama saja (Cone Lucky Sunday & Cup 400 Packing otomatis dilewati)
-  itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
-  
-  document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
-  return totalQty;
-}
+  allQtyInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
 
-// Pasang pengetesan ke semua input angka agar total otomatis terupdate saat diisi
-document.querySelectorAll('input[type="number"]').forEach(input => {
-  input.addEventListener('input', hitungTotalPenjualan);
-});
+  function hitungTotalPenjualan() {
+    let totalQty = 0;
+    itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
+    document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
+    return totalQty;
+  }
 
   function formatRupiah(val) {
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
@@ -292,7 +273,6 @@ document.querySelectorAll('input[type="number"]').forEach(input => {
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Data dikonversi ke angka murni (tanpa titik) sebelum masuk payload/excel
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
