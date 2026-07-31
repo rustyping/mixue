@@ -22,7 +22,6 @@
     body { background-color: var(--bg); color: var(--text); padding: 12px; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
     .app-container { max-width: 600px; margin: 0 auto; }
     
-    /* HEADER WITH FLEX FOR RESET BUTTON */
     .header-card { 
       background: linear-gradient(135deg, #e60012 0%, #99000c 100%); 
       color: #ffffff; 
@@ -77,7 +76,6 @@
     .summary-info strong { color: var(--primary); font-size: 15px; }
     .btn-submit { background-color: var(--primary); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; max-width: 200px; }
     
-    /* MODAL KONFIRMASI */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: #ffffff; width: 100%; max-width: 480px; max-height: 85vh; border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
@@ -102,7 +100,6 @@
 <body>
 
 <div class="app-container">
-  <!-- HEADER DENGAN TOMBOL RESET DI KANAN ATAS -->
   <div class="header-card">
     <div class="header-info">
       <h1>Form Stok Opname</h1>
@@ -149,7 +146,7 @@
   </form>
 </div>
 
-<!-- MODAL POPUP KONFIRMASI RINGKASAN -->
+<!-- MODAL POPUP KONFIRMASI -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
     <div class="modal-header">
@@ -180,6 +177,7 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
   const STORAGE_KEY = "mixue_stok_opname_draft";
   let rawKatalog = [];
+  let processedKatalog = []; // Katalog dengan susunan box unik
   let currentPayload = null;
 
   function updateTime() {
@@ -194,8 +192,9 @@
       .then(res => res.json())
       .then(res => {
         if (res.status === 'success') {
-          renderKatalog(res.data);
-          loadDraft(); // Load data inputan terkunci dari localStorage
+          processKatalogUnits(res.data);
+          renderKatalog();
+          loadDraft();
         } else {
           throw new Error("Gagal mengambil data katalog");
         }
@@ -206,17 +205,63 @@
       });
   };
 
-  function renderKatalog(data) {
+  // LOGIKA MENYATUKAN BUBBLE INPUT JIKA NILAI KONVERSI SAMA
+  function processKatalogUnits(data) {
     rawKatalog = data || [];
+    processedKatalog = rawKatalog.map(item => {
+      // Kumpulkan kandidat unit yang valid
+      let rawUnits = [];
+      
+      if (item.satuan3 && item.konversi3 > 0) {
+        rawUnits.push({ id: 3, label: item.satuan3, factor: Number(item.konversi3) });
+      }
+      if (item.satuan2 && item.konversi2 > 0) {
+        rawUnits.push({ id: 2, label: item.satuan2, factor: Number(item.konversi2) });
+      }
+      rawUnits.push({ id: 1, label: item.satuan1 || 'Pcs', factor: Number(item.konversi1 || 1) });
+
+      // Eliminasi duplikasi jika nilai faktor konversinya SAMA
+      let uniqueUnits = [];
+      let seenFactors = new Set();
+
+      // Urutkan faktor dari yang terbesar ke terkecil
+      rawUnits.sort((a, b) => b.factor - a.factor);
+
+      rawUnits.forEach(u => {
+        if (!seenFactors.has(u.factor)) {
+          seenFactors.add(u.factor);
+          uniqueUnits.push(u);
+        }
+      });
+
+      return {
+        ...item,
+        uniqueUnits: uniqueUnits
+      };
+    });
+  }
+
+  function renderKatalog() {
     const container = document.getElementById('katalogContainer');
 
-    if (rawKatalog.length === 0) {
+    if (processedKatalog.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
       return;
     }
 
     let html = '';
-    rawKatalog.forEach((item, index) => {
+    processedKatalog.forEach((item, index) => {
+      let inputsHtml = '';
+      
+      item.uniqueUnits.forEach(u => {
+        inputsHtml += `
+          <div class="input-unit-wrapper">
+            <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+            <span class="unit-tag">${u.label}</span>
+          </div>
+        `;
+      });
+
       html += `
         <div class="item-card" id="card_${index}">
           <div class="item-header">
@@ -225,25 +270,7 @@
           </div>
           
           <div class="inputs-grid">
-            <!-- Satuan 3 (misal Dus) -->
-            ${item.satuan3 ? `
-            <div class="input-unit-wrapper">
-              <input type="number" step="any" min="0" id="stok3_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
-              <span class="unit-tag">${item.satuan3}</span>
-            </div>` : ''}
-
-            <!-- Satuan 2 (misal Pack) -->
-            ${item.satuan2 ? `
-            <div class="input-unit-wrapper">
-              <input type="number" step="any" min="0" id="stok2_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
-              <span class="unit-tag">${item.satuan2}</span>
-            </div>` : ''}
-
-            <!-- Satuan 1 (misal Pcs) -->
-            <div class="input-unit-wrapper">
-              <input type="number" step="any" min="0" id="stok1_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
-              <span class="unit-tag">${item.satuan1 || 'Pcs'}</span>
-            </div>
+            ${inputsHtml}
           </div>
 
           <div class="calc-result-box">
@@ -259,22 +286,23 @@
   }
 
   function calculateRow(index, triggerSave = true) {
-    const item = rawKatalog[index];
-    
-    const v3 = parseFloat(document.getElementById(`stok3_${index}`)?.value || 0);
-    const v2 = parseFloat(document.getElementById(`stok2_${index}`)?.value || 0);
-    const v1 = parseFloat(document.getElementById(`stok1_${index}`)?.value || 0);
+    const item = processedKatalog[index];
+    let totalPcs = 0;
+    let hasValue = false;
 
-    const k3 = item.konversi3 || 1;
-    const k2 = item.konversi2 || 1;
-    const k1 = item.konversi1 || 1;
-
-    const totalPcs = (v3 * k3) + (v2 * k2) + (v1 * k1);
+    item.uniqueUnits.forEach(u => {
+      const inputEl = document.getElementById(`unit_${index}_${u.id}`);
+      const val = parseFloat(inputEl?.value || 0);
+      if (val > 0) {
+        hasValue = true;
+        totalPcs += (val * u.factor);
+      }
+    });
 
     document.getElementById(`totalPcs_${index}`).innerText = `${totalPcs} ${item.satuan1 || 'Pcs'}`;
 
     const card = document.getElementById(`card_${index}`);
-    if (v3 > 0 || v2 > 0 || v1 > 0) {
+    if (hasValue) {
       card.classList.add('filled');
     } else {
       card.classList.remove('filled');
@@ -286,7 +314,7 @@
 
   function filterKatalog() {
     const keyword = document.getElementById('searchInput').value.toLowerCase();
-    rawKatalog.forEach((item, index) => {
+    processedKatalog.forEach((item, index) => {
       const card = document.getElementById(`card_${index}`);
       if (card) {
         const match = item.namaBarang.toLowerCase().includes(keyword) || (item.kategori && item.kategori.toLowerCase().includes(keyword));
@@ -297,14 +325,13 @@
 
   function updateCounter() {
     let count = 0;
-    rawKatalog.forEach((_, index) => {
+    processedKatalog.forEach((_, index) => {
       const card = document.getElementById(`card_${index}`);
       if (card && card.classList.contains('filled')) count++;
     });
     document.getElementById('filledCount').innerText = count;
   }
 
-  // LOGIK SIMPAN & BACA LOCAL STORAGE (INPUTAN TERKUNCI)
   function saveDraft() {
     const draft = {
       checker: document.getElementById('checker').value,
@@ -312,13 +339,20 @@
       inputs: {}
     };
 
-    rawKatalog.forEach((item, index) => {
-      const v3 = document.getElementById(`stok3_${index}`)?.value || '';
-      const v2 = document.getElementById(`stok2_${index}`)?.value || '';
-      const v1 = document.getElementById(`stok1_${index}`)?.value || '';
+    processedKatalog.forEach((item, index) => {
+      let itemInputs = {};
+      let hasValue = false;
+      
+      item.uniqueUnits.forEach(u => {
+        const val = document.getElementById(`unit_${index}_${u.id}`)?.value || '';
+        if (val !== '') {
+          itemInputs[u.id] = val;
+          hasValue = true;
+        }
+      });
 
-      if (v3 !== '' || v2 !== '' || v1 !== '') {
-        draft.inputs[item.namaBarang] = { v3, v2, v1 };
+      if (hasValue) {
+        draft.inputs[item.namaBarang] = itemInputs;
       }
     });
 
@@ -335,18 +369,15 @@
       if (draft.catatanUmum) document.getElementById('catatanUmum').value = draft.catatanUmum;
 
       if (draft.inputs) {
-        rawKatalog.forEach((item, index) => {
+        processedKatalog.forEach((item, index) => {
           const itemData = draft.inputs[item.namaBarang];
           if (itemData) {
-            if (itemData.v3 !== undefined && document.getElementById(`stok3_${index}`)) {
-              document.getElementById(`stok3_${index}`).value = itemData.v3;
-            }
-            if (itemData.v2 !== undefined && document.getElementById(`stok2_${index}`)) {
-              document.getElementById(`stok2_${index}`).value = itemData.v2;
-            }
-            if (itemData.v1 !== undefined && document.getElementById(`stok1_${index}`)) {
-              document.getElementById(`stok1_${index}`).value = itemData.v1;
-            }
+            item.uniqueUnits.forEach(u => {
+              if (itemData[u.id] !== undefined) {
+                const el = document.getElementById(`unit_${index}_${u.id}`);
+                if (el) el.value = itemData[u.id];
+              }
+            });
             calculateRow(index, false);
           }
         });
@@ -356,13 +387,12 @@
     }
   }
 
-  // FUNGSI MENGOSONGKAN INPUTAN (RESET)
   function resetAllInputs() {
     if (confirm("Apakah Anda yakin ingin mengosongkan semua inputan stok opname?")) {
       localStorage.removeItem(STORAGE_KEY);
       document.getElementById('opnameForm').reset();
       
-      rawKatalog.forEach((item, index) => {
+      processedKatalog.forEach((item, index) => {
         const card = document.getElementById(`card_${index}`);
         if (card) card.classList.remove('filled');
         const totalSpan = document.getElementById(`totalPcs_${index}`);
@@ -373,7 +403,6 @@
     }
   }
 
-  // TAMPILKAN POPUP KONFIRMASI SESUAI INPUTAN RINCI PEGAWAI
   function showConfirmationModal() {
     const checker = document.getElementById('checker').value.trim();
     if (!checker) {
@@ -385,23 +414,19 @@
     let itemsPayload = [];
     let tbodyHtml = '';
 
-    rawKatalog.forEach((item, index) => {
-      const v3 = parseFloat(document.getElementById(`stok3_${index}`)?.value || 0);
-      const v2 = parseFloat(document.getElementById(`stok2_${index}`)?.value || 0);
-      const v1 = parseFloat(document.getElementById(`stok1_${index}`)?.value || 0);
+    processedKatalog.forEach((item, index) => {
+      let totalPcs = 0;
+      let rincian = [];
 
-      if (v3 > 0 || v2 > 0 || v1 > 0) {
-        const k3 = item.konversi3 || 1;
-        const k2 = item.konversi2 || 1;
-        const k1 = item.konversi1 || 1;
-        const totalPcs = (v3 * k3) + (v2 * k2) + (v1 * k1);
+      item.uniqueUnits.forEach(u => {
+        const val = parseFloat(document.getElementById(`unit_${index}_${u.id}`)?.value || 0);
+        if (val > 0) {
+          totalPcs += (val * u.factor);
+          rincian.push(`${val} ${u.label}`);
+        }
+      });
 
-        // FORMAT RINCIAN INPUT PEGAWAI: misal "5 dus 1 pack 5pcs"
-        let rincian = [];
-        if (v3 > 0 && item.satuan3) rincian.push(`${v3} ${item.satuan3}`);
-        if (v2 > 0 && item.satuan2) rincian.push(`${v2} ${item.satuan2}`);
-        if (v1 > 0) rincian.push(`${v1} ${item.satuan1 || 'Pcs'}`);
-
+      if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
 
         itemsPayload.push({
@@ -446,7 +471,6 @@
     document.getElementById('confirmModal').classList.remove('active');
   }
 
-  // KIRIM DATA FINAL KE GOOGLE SHEET & HAPUS DRAFT
   function submitFinalData() {
     if (!currentPayload) return;
 
@@ -463,16 +487,14 @@
       if (res.status === 'success') {
         alert(res.message);
         
-        // Bersihkan LocalStorage setelah berhasil simpan ke sheet
         localStorage.removeItem(STORAGE_KEY);
-        
         closeConfirmationModal();
         document.getElementById('opnameForm').reset();
         
-        rawKatalog.forEach((_, index) => {
+        processedKatalog.forEach((item, index) => {
           const card = document.getElementById(`card_${index}`);
           if (card) card.classList.remove('filled');
-          document.getElementById(`totalPcs_${index}`).innerText = `0 ${rawKatalog[index].satuan1 || 'Pcs'}`;
+          document.getElementById(`totalPcs_${index}`).innerText = `0 ${item.satuan1 || 'Pcs'}`;
         });
         
         updateCounter();
