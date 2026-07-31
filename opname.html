@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Stok Opname - UD. Damai / Mixue</title>
@@ -30,17 +29,15 @@
       background-color: var(--bg);
       color: var(--text);
       padding: 12px;
-      padding-bottom: 90px; /* Space for sticky bottom button */
+      padding-bottom: 90px;
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Container utama */
     .app-container {
       max-width: 600px;
       margin: 0 auto;
     }
 
-    /* Header Banner */
     .header-card {
       background: linear-gradient(135deg, #e60012 0%, #99000c 100%);
       color: #ffffff;
@@ -53,7 +50,6 @@
     .header-card h1 {
       font-size: 18px;
       font-weight: 700;
-      letter-spacing: -0.3px;
       margin-bottom: 4px;
     }
 
@@ -62,7 +58,6 @@
       opacity: 0.9;
     }
 
-    /* Card Section Generic */
     .card {
       background: var(--card-bg);
       border-radius: var(--radius);
@@ -77,12 +72,8 @@
       font-weight: 700;
       color: var(--text);
       margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
-    /* Form Controls */
     .form-group {
       margin-bottom: 12px;
     }
@@ -98,13 +89,11 @@
       color: var(--text-muted);
       margin-bottom: 6px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     input[type="text"],
     input[type="number"],
-    textarea,
-    select {
+    textarea {
       width: 100%;
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -113,35 +102,24 @@
       color: var(--text);
       background-color: #f8fafc;
       outline: none;
-      transition: all 0.2s ease;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus, textarea:focus {
       border-color: var(--primary);
       background-color: #ffffff;
       box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
     }
 
-    /* Search & Filter Bar */
     .search-filter-box {
-      display: flex;
-      gap: 8px;
       margin-bottom: 12px;
     }
 
-    .search-filter-box input {
-      flex: 1;
-      background: #ffffff;
-    }
-
-    /* Item Card */
     .item-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px;
       margin-bottom: 10px;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .item-card.filled {
@@ -160,7 +138,6 @@
       font-weight: 600;
       font-size: 14px;
       color: var(--text);
-      line-height: 1.3;
     }
 
     .category-badge {
@@ -171,10 +148,8 @@
       background-color: var(--accent-light);
       color: var(--primary);
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
-    /* Inputs Grid */
     .inputs-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -205,10 +180,8 @@
     .note-input {
       font-size: 12px !important;
       padding: 8px 10px !important;
-      background-color: #f8fafc !important;
     }
 
-    /* Floating Submit Bar */
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -218,7 +191,6 @@
       backdrop-filter: blur(10px);
       padding: 12px 16px;
       border-top: 1px solid var(--border);
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
       z-index: 100;
     }
 
@@ -250,24 +222,15 @@
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(230, 0, 18, 0.3);
       flex: 1;
       max-width: 200px;
     }
 
-    .btn-submit:active {
-      transform: scale(0.98);
-      background-color: var(--primary-dark);
-    }
-
     .btn-submit:disabled {
       background-color: #cbd5e1;
-      box-shadow: none;
       cursor: not-allowed;
     }
 
-    /* Loading state */
     .loading-state {
       text-align: center;
       padding: 30px 10px;
@@ -294,18 +257,14 @@
 <body>
 
 <div class="app-container">
-  <!-- Banner Header -->
   <div class="header-card">
     <h1>Form Stok Opname</h1>
     <p id="currentDateTime">Memuat tanggal & waktu...</p>
   </div>
 
   <form id="opnameForm">
-    <!-- Informasi Checker -->
     <div class="card">
-      <div class="section-title">
-        📌 Informasi Petugas
-      </div>
+      <div class="section-title">📌 Informasi Petugas</div>
       <div class="form-group">
         <label for="checker">Nama Checker / Pegawai *</label>
         <input type="text" id="checker" required placeholder="Masukkan nama Anda (misal: Dila / Silva)">
@@ -316,12 +275,8 @@
       </div>
     </div>
 
-    <!-- Filter & Daftar Bahan Baku -->
-    <div class="card" style="padding-bottom: 8px;">
-      <div class="section-title">
-        📦 Input Stok Bahan Baku
-      </div>
-
+    <div class="card">
+      <div class="section-title">📦 Input Stok Bahan Baku</div>
       <div class="search-filter-box">
         <input type="text" id="searchInput" placeholder="🔍 Cari nama bahan..." oninput="filterKatalog()">
       </div>
@@ -334,7 +289,6 @@
       </div>
     </div>
 
-    <!-- Fixed Bottom Bar -->
     <div class="bottom-bar">
       <div class="bottom-bar-inner">
         <div class="summary-info">
@@ -347,9 +301,9 @@
 </div>
 
 <script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
   let rawKatalog = [];
 
-  // Tampilkan waktu realtime pada header
   function updateTime() {
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -357,15 +311,21 @@
   }
   updateTime();
 
-  // Load data dari Google Apps Script
+  // Load katalog via fetch API
   window.onload = function() {
-    google.script.run
-      .withSuccessHandler(renderKatalog)
-      .withFailureHandler(function(err) {
+    fetch(SCRIPT_URL + "?action=getKatalog")
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'success') {
+          renderKatalog(res.data);
+        } else {
+          throw new Error("Gagal mengambil data katalog");
+        }
+      })
+      .catch(err => {
         document.getElementById('katalogContainer').innerHTML = 
           '<div style="color:var(--primary); text-align:center; padding:15px; font-size:13px;">Gagal memuat katalog: ' + err.message + '</div>';
-      })
-      .getKatalogOpname();
+      });
   };
 
   function renderKatalog(data) {
@@ -409,7 +369,6 @@
     updateCounter();
   }
 
-  // Filter pencarian barang
   function filterKatalog() {
     const keyword = document.getElementById('searchInput').value.toLowerCase();
     rawKatalog.forEach((item, index) => {
@@ -421,7 +380,6 @@
     });
   }
 
-  // Visual status & counter update saat input
   function onInputChanged(index) {
     const val1 = document.getElementById(`stok1_${index}`) ? document.getElementById(`stok1_${index}`).value : "";
     const val2El = document.getElementById(`stok2_${index}`);
@@ -449,7 +407,6 @@
     document.getElementById('filledCount').innerText = count;
   }
 
-  // Form Submission
   document.getElementById('opnameForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -486,32 +443,36 @@
     submitBtn.disabled = true;
     submitBtn.innerText = "Menyimpan...";
 
-    google.script.run
-      .withSuccessHandler(function(res) {
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        checker: checker,
+        catatanUmum: catatanUmum,
+        items: itemsPayload
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.status === 'success') {
         alert(res.message);
         document.getElementById('opnameForm').reset();
-        
-        // Reset card styling
         rawKatalog.forEach((_, index) => {
           const card = document.getElementById(`card_${index}`);
           if (card) card.classList.remove('filled');
         });
         updateCounter();
-
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Simpan Opname";
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      })
-      .withFailureHandler(function(err) {
-        alert('Gagal menyimpan stok: ' + err.message);
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Simpan Opname";
-      })
-      .simpanStokOpname({
-        checker: checker,
-        catatanUmum: catatanUmum,
-        items: itemsPayload
-      });
+      } else {
+        alert("Gagal menyimpan: " + res.message);
+      }
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Simpan Opname";
+    })
+    .catch(err => {
+      alert('Gagal menyimpan stok: ' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Simpan Opname";
+    });
   });
 </script>
 
