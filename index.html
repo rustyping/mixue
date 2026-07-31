@@ -115,33 +115,47 @@
     <!-- PENJUALAN ITEM & PACKAGING -->
     <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
 
-    <div class="row-2">
-      <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0" class="item-qty"></div>
+<div class="row-2">
+      <!-- DITAMBAH class "item-count" -->
+      <div class="form-group"><label>Cone</label><input type="number" id="cone" class="item-count" placeholder="0"></div>
+      
+      <!-- TETAP class "item-qty" (Akan terlewati dari hitungan total) -->
       <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0" class="item-qty"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-qty"></div>
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-count"></div>
+      
+      <!-- TETAP class "item-qty" (Akan terlewati dari hitungan total) -->
       <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0" class="item-qty"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0" class="item-qty"></div>
-      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0" class="item-qty"></div>
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0" class="item-count"></div>
+      
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0" class="item-qty"></div>
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="row-2">
-      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0" class="item-qty"></div>
-      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0" class="item-qty"></div>
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0" class="item-count"></div>
+      
+      <!-- UBAH: item-qty -> item-count -->
+      <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0" class="item-count"></div>
     </div>
 
     <div class="form-group">
       <label>Boneka (Qty)</label>
-      <input type="number" id="bonekaQty" placeholder="0" class="item-qty">
+      <!-- UBAH: item-qty -> item-count -->
+      <input type="number" id="bonekaQty" placeholder="0" class="item-count">
     </div>
 
     <!-- BOX TOTAL PENJUALAN -->
