@@ -16,6 +16,7 @@
       --border: #e2e8f0;
       --accent-light: #fef2f2;
       --radius: 12px;
+      --whatsapp: #25d366;
     }
 
     * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
@@ -90,7 +91,7 @@
 
     .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #f8fafc; }
     .btn-cancel { background: #e2e8f0; color: #334155; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .btn-confirm { background: var(--primary); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-confirm-wa { background: var(--whatsapp); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
     .loading-state { text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 13px; }
     .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto 10px auto; }
@@ -168,7 +169,9 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel" onclick="closeConfirmationModal()">Batal / Edit</button>
-      <button type="button" class="btn-confirm" id="btnFinalSubmit" onclick="submitFinalData()">Kirim ke Google Sheet</button>
+      <button type="button" class="btn-confirm-wa" id="btnFinalSubmit" onclick="submitFinalData()">
+        📱 Simpan & Pilih Grup WA
+      </button>
     </div>
   </div>
 </div>
@@ -177,7 +180,7 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
   const STORAGE_KEY = "mixue_stok_opname_draft";
   let rawKatalog = [];
-  let processedKatalog = []; // Katalog dengan susunan box unik
+  let processedKatalog = [];
   let currentPayload = null;
 
   function updateTime() {
@@ -205,26 +208,16 @@
       });
   };
 
-  // LOGIKA MENYATUKAN BUBBLE INPUT JIKA NILAI KONVERSI SAMA
   function processKatalogUnits(data) {
     rawKatalog = data || [];
     processedKatalog = rawKatalog.map(item => {
-      // Kumpulkan kandidat unit yang valid
       let rawUnits = [];
-      
-      if (item.satuan3 && item.konversi3 > 0) {
-        rawUnits.push({ id: 3, label: item.satuan3, factor: Number(item.konversi3) });
-      }
-      if (item.satuan2 && item.konversi2 > 0) {
-        rawUnits.push({ id: 2, label: item.satuan2, factor: Number(item.konversi2) });
-      }
+      if (item.satuan3 && item.konversi3 > 0) rawUnits.push({ id: 3, label: item.satuan3, factor: Number(item.konversi3) });
+      if (item.satuan2 && item.konversi2 > 0) rawUnits.push({ id: 2, label: item.satuan2, factor: Number(item.konversi2) });
       rawUnits.push({ id: 1, label: item.satuan1 || 'Pcs', factor: Number(item.konversi1 || 1) });
 
-      // Eliminasi duplikasi jika nilai faktor konversinya SAMA
       let uniqueUnits = [];
       let seenFactors = new Set();
-
-      // Urutkan faktor dari yang terbesar ke terkecil
       rawUnits.sort((a, b) => b.factor - a.factor);
 
       rawUnits.forEach(u => {
@@ -234,16 +227,12 @@
         }
       });
 
-      return {
-        ...item,
-        uniqueUnits: uniqueUnits
-      };
+      return { ...item, uniqueUnits: uniqueUnits };
     });
   }
 
   function renderKatalog() {
     const container = document.getElementById('katalogContainer');
-
     if (processedKatalog.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
       return;
@@ -252,7 +241,6 @@
     let html = '';
     processedKatalog.forEach((item, index) => {
       let inputsHtml = '';
-      
       item.uniqueUnits.forEach(u => {
         inputsHtml += `
           <div class="input-unit-wrapper">
@@ -268,11 +256,7 @@
             <div class="item-name">${item.namaBarang}</div>
             ${item.kategori ? `<span class="category-badge">${item.kategori}</span>` : ''}
           </div>
-          
-          <div class="inputs-grid">
-            ${inputsHtml}
-          </div>
-
+          <div class="inputs-grid">${inputsHtml}</div>
           <div class="calc-result-box">
             <span>Total Hasil (${item.satuan1 || 'Pcs'}):</span>
             <span id="totalPcs_${index}">0 ${item.satuan1 || 'Pcs'}</span>
@@ -291,8 +275,7 @@
     let hasValue = false;
 
     item.uniqueUnits.forEach(u => {
-      const inputEl = document.getElementById(`unit_${index}_${u.id}`);
-      const val = parseFloat(inputEl?.value || 0);
+      const val = parseFloat(document.getElementById(`unit_${index}_${u.id}`)?.value || 0);
       if (val > 0) {
         hasValue = true;
         totalPcs += (val * u.factor);
@@ -300,13 +283,9 @@
     });
 
     document.getElementById(`totalPcs_${index}`).innerText = `${totalPcs} ${item.satuan1 || 'Pcs'}`;
-
     const card = document.getElementById(`card_${index}`);
-    if (hasValue) {
-      card.classList.add('filled');
-    } else {
-      card.classList.remove('filled');
-    }
+    if (hasValue) card.classList.add('filled');
+    else card.classList.remove('filled');
 
     updateCounter();
     if (triggerSave) saveDraft();
@@ -342,7 +321,6 @@
     processedKatalog.forEach((item, index) => {
       let itemInputs = {};
       let hasValue = false;
-      
       item.uniqueUnits.forEach(u => {
         const val = document.getElementById(`unit_${index}_${u.id}`)?.value || '';
         if (val !== '') {
@@ -350,10 +328,7 @@
           hasValue = true;
         }
       });
-
-      if (hasValue) {
-        draft.inputs[item.namaBarang] = itemInputs;
-      }
+      if (hasValue) draft.inputs[item.namaBarang] = itemInputs;
     });
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -391,14 +366,11 @@
     if (confirm("Apakah Anda yakin ingin mengosongkan semua inputan stok opname?")) {
       localStorage.removeItem(STORAGE_KEY);
       document.getElementById('opnameForm').reset();
-      
       processedKatalog.forEach((item, index) => {
         const card = document.getElementById(`card_${index}`);
         if (card) card.classList.remove('filled');
-        const totalSpan = document.getElementById(`totalPcs_${index}`);
-        if (totalSpan) totalSpan.innerText = `0 ${item.satuan1 || 'Pcs'}`;
+        document.getElementById(`totalPcs_${index}`).innerText = `0 ${item.satuan1 || 'Pcs'}`;
       });
-      
       updateCounter();
     }
   }
@@ -431,7 +403,8 @@
 
         itemsPayload.push({
           namaBarang: item.namaBarang,
-          totalSatuan1: totalPcs
+          rincianText: rincianStr,
+          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs')
         });
 
         tbodyHtml += `
@@ -485,8 +458,7 @@
     .then(res => res.json())
     .then(res => {
       if (res.status === 'success') {
-        alert(res.message);
-        
+        // Bersihkan draft
         localStorage.removeItem(STORAGE_KEY);
         closeConfirmationModal();
         document.getElementById('opnameForm').reset();
@@ -496,19 +468,25 @@
           if (card) card.classList.remove('filled');
           document.getElementById(`totalPcs_${index}`).innerText = `0 ${item.satuan1 || 'Pcs'}`;
         });
-        
         updateCounter();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Buka WhatsApp untuk pilih grup
+        if (res.waUrl) {
+          window.location.href = res.waUrl;
+        }
+
+        btnFinal.disabled = false;
+        btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
       } else {
         alert("Gagal menyimpan: " + res.message);
+        btnFinal.disabled = false;
+        btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
       }
-      btnFinal.disabled = false;
-      btnFinal.innerText = "Kirim ke Google Sheet";
     })
     .catch(err => {
-      alert('Gagal menyimpan stok: ' + err.message);
+      alert('Gagal mengirim data: ' + err.message);
       btnFinal.disabled = false;
-      btnFinal.innerText = "Kirim ke Google Sheet";
+      btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
     });
   }
 </script>
