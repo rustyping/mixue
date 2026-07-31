@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Stok Opname Mixue</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    }
+    body { 
+      background-color: #f2f2f7; 
+      margin: 0; 
+      padding: 12px; 
+      color: #1c1c1e; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card { 
+      background: #ffffff; 
+      border-radius: 12px; 
+      padding: 16px; 
+      margin-bottom: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+    }
+    .header { 
+      text-align: center; 
+      border-bottom: 2px solid #e60012; 
+      padding-bottom: 10px; 
+      margin-bottom: 14px; 
+    }
+    .header h2 { 
+      color: #e60012; 
+      margin: 0; 
+      font-size: 18px; 
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase; 
+    }
+    .form-group { 
+      margin-bottom: 12px; 
+    }
+    label { 
+      font-weight: 600; 
+      font-size: 13px; 
+      display: block; 
+      margin-bottom: 4px; 
+      color: #3a3a3c; 
+    }
+    input[type="text"], input[type="number"], textarea { 
+      width: 100%; 
+      padding: 10px 12px; 
+      border: 1px solid #c7c7cc; 
+      border-radius: 8px; 
+      font-size: 14px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { 
+      border-color: #e60012; 
+    }
+    
+    /* Card Barang */
+    .item-card { 
+      background: #fafafa; 
+      border: 1px solid #e5e5ea; 
+      border-radius: 10px; 
+      padding: 12px; 
+      margin-bottom: 10px; 
+    }
+    .item-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 8px; 
+    }
+    .item-title { 
+      font-weight: 700; 
+      font-size: 14px; 
+      color: #000000; 
+    }
+    .badge { 
+      background: #ffe5e5; 
+      color: #e60012; 
+      font-size: 10px; 
+      padding: 3px 8px; 
+      border-radius: 12px; 
+      font-weight: 700; 
+      text-transform: uppercase;
+    }
+    
+    .inputs-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 8px; 
+      margin-bottom: 8px; 
+    }
+    .unit-label { 
+      font-size: 11px; 
+      color: #8e8e93; 
+      margin-top: 3px; 
+      font-weight: 500;
+    }
+    
+    .btn-submit { 
+      background-color: #e60012; 
+      color: #ffffff; 
+      border: none; 
+      padding: 14px; 
+      width: 100%; 
+      border-radius: 10px; 
+      font-size: 16px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      box-shadow: 0 4px 10px rgba(230, 0, 18, 0.3);
+      transition: background-color 0.2s;
+    }
+    .btn-submit:active {
+      background-color: #b3000e;
+    }
+    .btn-submit:disabled { 
+      background-color: #a1a1a1; 
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    .loading-text { 
+      text-align: center; 
+      color: #8e8e93; 
+      padding: 24px 12px; 
+      font-size: 14px; 
+    }
+  </style>
+</head>
+<body>
+
+<form id="opnameForm">
+  <!-- Section Informasi Opname -->
+  <div class="card">
+    <div class="header">
+      <h2>Input Stok Opname</h2>
+    </div>
+
+    <div class="form-group">
+      <label for="checker">Nama Checker / Pegawai *</label>
+      <input type="text" id="checker" required placeholder="Contoh: Dila / Silva">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 0;">
+      <label for="catatanUmum">Catatan Shift / Opname</label>
+      <textarea id="catatanUmum" rows="2" placeholder="Catatan umum shift (opsional)..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section Katalog Bahan Baku -->
+  <div class="card">
+    <label style="font-size:14px; margin-bottom:12px; color:#1c1c1e;">Daftar Bahan Baku Katalog</label>
+    
+    <div id="katalogContainer">
+      <div class="loading-text">Memuat katalog dari Google Sheet...</div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">Simpan Stok Opname</button>
+  </div>
+</form>
+
+<script>
+  let rawKatalog = [];
+
+  // Memuat data katalog saat webview dibuka
+  window.onload = function() {
+    google.script.run
+      .withSuccessHandler(renderKatalog)
+      .withFailureHandler(function(err) {
+        document.getElementById('katalogContainer').innerHTML = 
+          '<p style="color:#e60012; text-align:center; padding:10px;">Gagal memuat katalog: ' + err.message + '</p>';
+      })
+      .getKatalogOpname();
+  };
+
+  function renderKatalog(data) {
+    rawKatalog = data;
+    const container = document.getElementById('katalogContainer');
+
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p style="text-align:center; color:#8e8e93; padding:15px;">Katalog kosong pada sheet katalogbahanbaku.</p>';
+      return;
+    }
+
+    let html = '';
+    data.forEach((item, index) => {
+      html += `
+        <div class="item-card">
+          <div class="item-header">
+            <span class="item-title">${item.namaBarang}</span>
+            <span class="badge">${item.kategori}</span>
+          </div>
+          
+          <div class="inputs-grid">
+            <div>
+              <input type="number" step="any" min="0" id="stok1_${index}" placeholder="Jml (${item.satuan1})">
+              <div class="unit-label">Satuan Utama: ${item.satuan1}</div>
+            </div>
+            ${item.satuan2 ? `
+            <div>
+              <input type="number" step="any" min="0" id="stok2_${index}" placeholder="Jml (${item.satuan2})">
+              <div class="unit-label">Satuan 2: ${item.satuan2}</div>
+            </div>` : '<div></div>'}
+          </div>
+
+          <div>
+            <input type="text" id="note_${index}" placeholder="Catatan item (opsional)" style="font-size: 12px; padding: 6px 10px;">
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Handle Form Submission
+  document.getElementById('opnameForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const checker = document.getElementById('checker').value.trim();
+    const catatanUmum = document.getElementById('catatanUmum').value.trim();
+    const submitBtn = document.getElementById('submitBtn');
+
+    let itemsPayload = [];
+
+    rawKatalog.forEach((item, index) => {
+      const val1 = document.getElementById(`stok1_${index}`).value;
+      const val2Element = document.getElementById(`stok2_${index}`);
+      const val2 = val2Element ? val2Element.value : "";
+      const note = document.getElementById(`note_${index}`).value.trim();
+
+      // Hanya kirim barang yang diisi stoknya
+      if (val1 !== "" || val2 !== "") {
+        itemsPayload.push({
+          namaBarang: item.namaBarang,
+          kategori: item.kategori,
+          stokSatuan1: val1,
+          satuan1: item.satuan1,
+          stokSatuan2: val2,
+          satuan2: item.satuan2,
+          catatanItem: note
+        });
+      }
+    });
+
+    if (itemsPayload.length === 0) {
+      alert('Harap isi minimal 1 stok barang sebelum menyimpan!');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Memproses & Menyimpan...";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        alert(res.message);
+        document.getElementById('opnameForm').reset();
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Simpan Stok Opname";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .withFailureHandler(function(err) {
+        alert('Gagal menyimpan: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Simpan Stok Opname";
+      })
+      .simpanStokOpname({
+        checker: checker,
+        catatanUmum: catatanUmum,
+        items: itemsPayload
+      });
+  });
+</script>
+
+</body>
+</html>
