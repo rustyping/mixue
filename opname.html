@@ -58,18 +58,102 @@
     input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); background-color: #f8fafc; outline: none; }
     input:focus, textarea:focus { border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12); }
     
-    .item-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-    .item-card.filled { border-color: #fca5a5; background-color: #fffdfd; }
-    .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-    .item-name { font-weight: 600; font-size: 14px; color: var(--text); }
-    .category-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; background-color: var(--accent-light); color: var(--primary); text-transform: uppercase; }
+/* Layout Kartu Bahan Baku */
+.item-card { 
+  background: var(--card-bg); 
+  border: 1px solid var(--border); 
+  border-radius: 10px; 
+  padding: 10px 12px; 
+  margin-bottom: 8px; 
+}
+.item-card.filled { 
+  border-color: #fca5a5; 
+  background-color: #fffdfd; 
+}
+.item-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 8px; 
+}
+.item-name { 
+  font-weight: 600; 
+  font-size: 13px; 
+  color: var(--text); 
+}
+.category-badge { 
+  font-size: 9px; 
+  font-weight: 700; 
+  padding: 2px 6px; 
+  border-radius: 12px; 
+  background-color: var(--accent-light); 
+  color: var(--primary); 
+  text-transform: uppercase; 
+}
 
-    .inputs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 8px; }
-    .input-unit-wrapper { position: relative; }
-    .unit-tag { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: var(--text-muted); pointer-events: none; }
-    .input-with-tag { padding-right: 42px !important; font-weight: 600; }
-    .calc-result-box { background: #f1f5f9; padding: 6px 10px; border-radius: 6px; font-size: 11px; color: #334155; display: flex; justify-content: space-between; font-weight: 600; }
-    .calc-result-box span { color: var(--primary-dark); font-weight: 700; }
+/* Baris Utama Input + Total disebelah kanan */
+.item-body-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Grid Input Satuan Kompak */
+.inputs-flex { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 6px; 
+  flex: 1;
+}
+
+.input-unit-wrapper { 
+  position: relative; 
+  width: 75px; /* Lebar kompak agar tidak terlalu panjang */
+}
+
+.input-with-tag { 
+  padding: 6px 26px 6px 8px !important; 
+  font-weight: 600; 
+  font-size: 12px; 
+  height: 32px;
+  text-align: right;
+}
+
+.unit-tag { 
+  position: absolute; 
+  right: 6px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  font-size: 10px; 
+  font-weight: 600; 
+  color: var(--text-muted); 
+  pointer-events: none; 
+}
+
+/* Total Hasil di sebelah kanan */
+.calc-result-side { 
+  background: #f1f5f9; 
+  padding: 4px 8px; 
+  border-radius: 6px; 
+  font-size: 11px; 
+  color: #334155; 
+  text-align: right;
+  white-space: nowrap;
+  min-width: 80px;
+}
+.calc-result-side .total-label {
+  display: block;
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.calc-result-side .total-val {
+  color: var(--primary-dark); 
+  font-weight: 700; 
+  font-size: 12px;
+}
 
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 16px; border-top: 1px solid var(--border); z-index: 100; }
     .bottom-bar-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -231,7 +315,7 @@
     });
   }
 
-  function renderKatalog() {
+function renderKatalog() {
     const container = document.getElementById('katalogContainer');
     if (processedKatalog.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
@@ -256,10 +340,12 @@
             <div class="item-name">${item.namaBarang}</div>
             ${item.kategori ? `<span class="category-badge">${item.kategori}</span>` : ''}
           </div>
-          <div class="inputs-grid">${inputsHtml}</div>
-          <div class="calc-result-box">
-            <span>Total Hasil (${item.satuan1 || 'Pcs'}):</span>
-            <span id="totalPcs_${index}">0 ${item.satuan1 || 'Pcs'}</span>
+          <div class="item-body-row">
+            <div class="inputs-flex">${inputsHtml}</div>
+            <div class="calc-result-side">
+              <span class="total-label">Total (${item.satuan1 || 'Pcs'})</span>
+              <span class="total-val" id="totalPcs_${index}">0</span>
+            </div>
           </div>
         </div>
       `;
