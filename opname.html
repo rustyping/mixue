@@ -18,240 +18,43 @@
       --radius: 12px;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); padding: 12px; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+    .app-container { max-width: 600px; margin: 0 auto; }
+    .header-card { background: linear-gradient(135deg, #e60012 0%, #99000c 100%); color: #ffffff; border-radius: var(--radius); padding: 18px 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(230, 0, 18, 0.25); }
+    .header-card h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .header-card p { font-size: 12px; opacity: 0.9; }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+    .section-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+    input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); background-color: #f8fafc; outline: none; }
+    input:focus, textarea:focus { border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12); }
+    
+    .item-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .item-card.filled { border-color: #fca5a5; background-color: #fffdfd; }
+    .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .item-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .category-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; background-color: var(--accent-light); color: var(--primary); text-transform: uppercase; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 12px;
-      padding-bottom: 90px;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .inputs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 8px; }
+    .input-unit-wrapper { position: relative; }
+    .unit-tag { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: var(--text-muted); pointer-events: none; }
+    .input-with-tag { padding-right: 42px !important; font-weight: 600; }
+    .calc-result-box { background: #f1f5f9; padding: 6px 10px; border-radius: 6px; font-size: 11px; color: #334155; margin-bottom: 8px; display: flex; justify-content: space-between; font-weight: 600; }
+    .calc-result-box span { color: var(--primary-dark); font-weight: 700; }
 
-    .app-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
+    .note-input { font-size: 12px !important; padding: 8px 10px !important; }
 
-    .header-card {
-      background: linear-gradient(135deg, #e60012 0%, #99000c 100%);
-      color: #ffffff;
-      border-radius: var(--radius);
-      padding: 18px 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 14px rgba(230, 0, 18, 0.25);
-    }
-
-    .header-card h1 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .header-card p {
-      font-size: 12px;
-      opacity: 0.9;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-
-    .section-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      color: var(--text);
-      background-color: #f8fafc;
-      outline: none;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--primary);
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
-    }
-
-    .search-filter-box {
-      margin-bottom: 12px;
-    }
-
-    .item-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-
-    .item-card.filled {
-      border-color: #fca5a5;
-      background-color: #fffdfd;
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-
-    .item-name {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    .category-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background-color: var(--accent-light);
-      color: var(--primary);
-      text-transform: uppercase;
-    }
-
-    .inputs-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .input-unit-wrapper {
-      position: relative;
-    }
-
-    .unit-tag {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      pointer-events: none;
-    }
-
-    .input-with-tag {
-      padding-right: 45px !important;
-      font-weight: 600;
-    }
-
-    .note-input {
-      font-size: 12px !important;
-      padding: 8px 10px !important;
-    }
-
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      z-index: 100;
-    }
-
-    .bottom-bar-inner {
-      max-width: 600px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .summary-info {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .summary-info strong {
-      color: var(--primary);
-      font-size: 15px;
-    }
-
-    .btn-submit {
-      background-color: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      flex: 1;
-      max-width: 200px;
-    }
-
-    .btn-submit:disabled {
-      background-color: #cbd5e1;
-      cursor: not-allowed;
-    }
-
-    .loading-state {
-      text-align: center;
-      padding: 30px 10px;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 10px auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 16px; border-top: 1px solid var(--border); z-index: 100; }
+    .bottom-bar-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .summary-info { font-size: 12px; color: var(--text-muted); }
+    .summary-info strong { color: var(--primary); font-size: 15px; }
+    .btn-submit { background-color: var(--primary); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; max-width: 200px; }
+    .btn-submit:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+    .loading-state { text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 13px; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto 10px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -277,7 +80,7 @@
 
     <div class="card">
       <div class="section-title">📦 Input Stok Bahan Baku</div>
-      <div class="search-filter-box">
+      <div style="margin-bottom: 12px;">
         <input type="text" id="searchInput" placeholder="🔍 Cari nama bahan..." oninput="filterKatalog()">
       </div>
 
@@ -311,7 +114,6 @@
   }
   updateTime();
 
-  // Load katalog via fetch API
   window.onload = function() {
     fetch(SCRIPT_URL + "?action=getKatalog")
       .then(res => res.json())
@@ -347,25 +149,68 @@
           </div>
           
           <div class="inputs-grid">
+            <!-- Satuan 3 (misal Dus) -->
+            ${item.satuan3 ? `
             <div class="input-unit-wrapper">
-              <input type="number" step="any" min="0" id="stok1_${index}" class="input-with-tag" placeholder="0" oninput="onInputChanged(${index})">
-              <span class="unit-tag">${item.satuan1 || 'Qty'}</span>
-            </div>
+              <input type="number" step="any" min="0" id="stok3_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+              <span class="unit-tag">${item.satuan3}</span>
+            </div>` : ''}
+
+            <!-- Satuan 2 (misal Pack) -->
             ${item.satuan2 ? `
             <div class="input-unit-wrapper">
-              <input type="number" step="any" min="0" id="stok2_${index}" class="input-with-tag" placeholder="0" oninput="onInputChanged(${index})">
+              <input type="number" step="any" min="0" id="stok2_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
               <span class="unit-tag">${item.satuan2}</span>
             </div>` : ''}
+
+            <!-- Satuan 1 (misal Pcs) -->
+            <div class="input-unit-wrapper">
+              <input type="number" step="any" min="0" id="stok1_${index}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+              <span class="unit-tag">${item.satuan1 || 'Pcs'}</span>
+            </div>
+          </div>
+
+          <div class="calc-result-box">
+            <span>Total Laporan (${item.satuan1 || 'Pcs'}):</span>
+            <span id="totalPcs_${index}">0 ${item.satuan1 || 'Pcs'}</span>
           </div>
 
           <div>
-            <input type="text" id="note_${index}" class="note-input" placeholder="+ Tambah catatan item..." oninput="onInputChanged(${index})">
+            <input type="text" id="note_${index}" class="note-input" placeholder="+ Catatan item (opsional)" oninput="calculateRow(${index})">
           </div>
         </div>
       `;
     });
 
     container.innerHTML = html;
+    updateCounter();
+  }
+
+  function calculateRow(index) {
+    const item = rawKatalog[index];
+    
+    const v3 = parseFloat(document.getElementById(`stok3_${index}`)?.value || 0);
+    const v2 = parseFloat(document.getElementById(`stok2_${index}`)?.value || 0);
+    const v1 = parseFloat(document.getElementById(`stok1_${index}`)?.value || 0);
+
+    const k3 = item.konversi3 || 1;
+    const k2 = item.konversi2 || 1;
+    const k1 = item.konversi1 || 1;
+
+    // Kalkulasi Total ke Satuan 1 (Pcs)
+    const totalPcs = (v3 * k3) + (v2 * k2) + (v1 * k1);
+
+    document.getElementById(`totalPcs_${index}`).innerText = `${totalPcs} ${item.satuan1 || 'Pcs'}`;
+
+    const card = document.getElementById(`card_${index}`);
+    const note = document.getElementById(`note_${index}`)?.value || "";
+
+    if (v3 > 0 || v2 > 0 || v1 > 0 || note.trim() !== "") {
+      card.classList.add('filled');
+    } else {
+      card.classList.remove('filled');
+    }
+
     updateCounter();
   }
 
@@ -380,29 +225,11 @@
     });
   }
 
-  function onInputChanged(index) {
-    const val1 = document.getElementById(`stok1_${index}`) ? document.getElementById(`stok1_${index}`).value : "";
-    const val2El = document.getElementById(`stok2_${index}`);
-    const val2 = val2El ? val2El.value : "";
-    const note = document.getElementById(`note_${index}`) ? document.getElementById(`note_${index}`).value : "";
-
-    const card = document.getElementById(`card_${index}`);
-    if (val1 !== "" || val2 !== "" || note.trim() !== "") {
-      card.classList.add('filled');
-    } else {
-      card.classList.remove('filled');
-    }
-
-    updateCounter();
-  }
-
   function updateCounter() {
     let count = 0;
     rawKatalog.forEach((_, index) => {
-      const val1 = document.getElementById(`stok1_${index}`) ? document.getElementById(`stok1_${index}`).value : "";
-      const val2El = document.getElementById(`stok2_${index}`);
-      const val2 = val2El ? val2El.value : "";
-      if (val1 !== "" || val2 !== "") count++;
+      const card = document.getElementById(`card_${index}`);
+      if (card && card.classList.contains('filled')) count++;
     });
     document.getElementById('filledCount').innerText = count;
   }
@@ -417,19 +244,21 @@
     let itemsPayload = [];
 
     rawKatalog.forEach((item, index) => {
-      const val1 = document.getElementById(`stok1_${index}`) ? document.getElementById(`stok1_${index}`).value : "";
-      const val2El = document.getElementById(`stok2_${index}`);
-      const val2 = val2El ? val2El.value : "";
-      const note = document.getElementById(`note_${index}`) ? document.getElementById(`note_${index}`).value.trim() : "";
+      const v3 = parseFloat(document.getElementById(`stok3_${index}`)?.value || 0);
+      const v2 = parseFloat(document.getElementById(`stok2_${index}`)?.value || 0);
+      const v1 = parseFloat(document.getElementById(`stok1_${index}`)?.value || 0);
+      const note = document.getElementById(`note_${index}`)?.value.trim() || "";
 
-      if (val1 !== "" || val2 !== "") {
+      if (v3 > 0 || v2 > 0 || v1 > 0 || note !== "") {
+        const k3 = item.konversi3 || 1;
+        const k2 = item.konversi2 || 1;
+        const k1 = item.konversi1 || 1;
+        const totalPcs = (v3 * k3) + (v2 * k2) + (v1 * k1);
+
         itemsPayload.push({
           namaBarang: item.namaBarang,
-          kategori: item.kategori,
-          stokSatuan1: val1,
-          satuan1: item.satuan1,
-          stokSatuan2: val2,
-          satuan2: item.satuan2,
+          totalSatuan1: totalPcs,
+          satuan1: item.satuan1 || 'Pcs',
           catatanItem: note
         });
       }
@@ -459,6 +288,7 @@
         rawKatalog.forEach((_, index) => {
           const card = document.getElementById(`card_${index}`);
           if (card) card.classList.remove('filled');
+          document.getElementById(`totalPcs_${index}`).innerText = `0 ${rawKatalog[index].satuan1 || 'Pcs'}`;
         });
         updateCounter();
         window.scrollTo({ top: 0, behavior: 'smooth' });
