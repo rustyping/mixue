@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Kasir Mixue Kebalen</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 15px; }
@@ -195,24 +196,26 @@
 
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
-  const PASSWORD_RAHASIA = "3108";
-  let currentPayload = {};
+  const HASH_PASSWORD_RAHASIA = "ee11cbb19052e40b07aac0ca060c23ee71da3a0f622956f4d360980c59239843";
 
-  // --- CEK PASSWORD ---
-  document.getElementById('passForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const passInput = document.getElementById('inputPass').value;
-    const errorMsg = document.getElementById('errorPass');
+document.getElementById('passForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const passInput = document.getElementById('inputPass').value;
+  const errorMsg = document.getElementById('errorPass');
 
-    if (passInput === PASSWORD_RAHASIA) {
-      document.getElementById('modalPassword').style.display = 'none';
-      errorMsg.style.display = 'none';
-    } else {
-      errorMsg.style.display = 'block';
-      document.getElementById('inputPass').value = '';
-      document.getElementById('inputPass').focus();
-    }
-  });
+  // Mengubah input user menjadi SHA-256 Hash
+  const hashInput = CryptoJS.SHA256(passInput).toString();
+
+  // Membandingkan nilai Hash, bukan teks biasa
+  if (hashInput === HASH_PASSWORD_RAHASIA) {
+    document.getElementById('modalPassword').style.display = 'none';
+    errorMsg.style.display = 'none';
+  } else {
+    errorMsg.style.display = 'block';
+    document.getElementById('inputPass').value = '';
+    document.getElementById('inputPass').focus();
+  }
+});
 
   // Auto Set Hari & Tanggal
   const now = new Date();
