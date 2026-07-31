@@ -1,881 +1,456 @@
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Laporan Kasir Mixue Kebalen</title>
-
   <style>
-
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-    body { background-color: #f4f6f9; margin: 0; padding: 15px; }
-
+    body { background-color: #f4f6f9; margin: 0; padding: 15px; user-select: none; -webkit-user-select: none; }
     
-
     /* Layout Utama */
-
     .card { max-width: 550px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
 
-
-
     /* Tag Versi di Pojok Kanan Atas */
-
     .version-tag { position: absolute; top: 12px; right: 15px; font-size: 0.75em; color: #888; font-weight: 600; }
-
     
-
     h2 { text-align: center; color: #e60012; margin-top: 0; margin-bottom: 5px; }
-
     .section-title { font-weight: bold; color: #e60012; border-bottom: 2px solid #e60012; padding-bottom: 5px; margin: 20px 0 10px 0; }
-
     .form-group { margin-bottom: 12px; }
-
     label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.88em; color: #333; }
-
-    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; }
-
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; user-select: text; -webkit-user-select: text; }
     textarea { resize: vertical; min-height: 70px; }
-
     input[readonly] { background-color: #e9ecef; }
-
     .total-box { background: #ffe6e6; border: 1px solid #ffb3b3; padding: 12px; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: #cc0000; text-align: center; margin: 15px 0; }
-
     .qty-total-box { background: #e8f8f5; border: 1px solid #2ecc71; padding: 10px; border-radius: 8px; font-size: 1em; font-weight: bold; color: #1e8449; text-align: center; margin: 15px 0; }
-
     button { width: 100%; padding: 12px; background-color: #e60012; color: white; border: none; border-radius: 6px; font-size: 1.05em; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
     button:disabled { background-color: #cccccc; }
-
     .row-2 { display: flex; gap: 10px; }
-
     .row-2 .form-group { flex: 1; }
 
-
-
     /* Styling Pop-up (Password & Summary) */
-
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
-
     .modal-content { background: #fff; border-radius: 12px; padding: 20px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
     .modal-header { font-size: 1.2em; font-weight: bold; color: #333; border-bottom: 2px solid #e60012; padding-bottom: 8px; margin-bottom: 15px; text-align: center; }
-
     
-
     .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.9em; }
-
     .summary-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
-
     .summary-table td:nth-child(1) { font-weight: 600; color: #555; width: 55%; }
-
     .summary-table td:nth-child(2) { text-align: right; font-weight: bold; color: #111; }
-
     
-
     .btn-wa { background-color: #25d366; color: white; font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; padding: 12px; border: none; cursor: pointer; width: 100%; font-size: 1em; }
-
     .btn-close { background-color: #6c757d; margin-top: 8px; }
 
-
-
     /* Modal Password Specific */
-
     #modalPassword { display: flex; }
-
     .login-box { text-align: center; }
-
     .login-box input { text-align: center; font-size: 1.3em; letter-spacing: 5px; margin-top: 10px; }
-
     .error-msg { color: #e60012; font-size: 0.85em; font-weight: bold; margin-top: 8px; display: none; }
-
   </style>
-
 </head>
-
 <body>
 
-
-
 <!-- POP-UP LAYAR PASSWORD (KUNCI AKSES) -->
-
 <div class="modal-overlay" id="modalPassword">
-
   <div class="modal-content login-box">
-
     <div class="modal-header">🔒 Akses Kasir Mixue Kebalen</div>
-
     <p style="font-size: 0.9em; color: #555;">Masukkan Kode Akses untuk Membuka Form Laporan:</p>
-
     <form id="passForm">
-
       <input type="password" id="inputPass" placeholder="****" maxlength="8" required autofocus>
-
       <div class="error-msg" id="errorPass">❌ Kode Akses Salah!</div>
-
       <button type="submit" style="margin-top: 15px;">Masuk / Buka Form 🔓</button>
-
     </form>
-
   </div>
-
 </div>
-
-
 
 <div class="card">
-
   <span class="version-tag">v1.04</span>
-
   <h2>🍦 Laporan Kasir Mixue Kebalen</h2>
-
   <form id="kasirForm">
-
     
-
     <!-- INFO KASIR & TANGGAL -->
-
     <div class="row-2">
-
       <div class="form-group">
-
         <label>Hari</label>
-
         <input type="text" id="hari" required readonly>
-
       </div>
-
       <div class="form-group">
-
         <label>Tanggal</label>
-
         <input type="text" id="tanggal" required readonly>
-
       </div>
-
     </div>
-
-
 
     <div class="form-group">
-
       <label>Nama Kasir / Shift</label>
-
       <input type="text" id="namaKasir" placeholder="Contoh: Silva / Dian" required>
-
     </div>
-
-
 
     <!-- PENDAPATAN -->
-
     <div class="section-title">💵 Rincian Pendapatan (Rp)</div>
-
     
-
     <div class="row-2">
-
       <div class="form-group"><label>Cash (Tunai)</label><input type="text" id="cash" placeholder="0" class="nominal"></div>
-
       <div class="form-group"><label>QRIS</label><input type="text" id="qris" placeholder="0" class="nominal"></div>
-
     </div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>Gojek</label><input type="text" id="gojek" placeholder="0" class="nominal"></div>
-
       <div class="form-group"><label>ShopeeFood</label><input type="text" id="shopee" placeholder="0" class="nominal"></div>
-
     </div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>TikTok Food</label><input type="text" id="tiktok" placeholder="0" class="nominal"></div>
-
       <div class="form-group"><label>GrabFood</label><input type="text" id="grab" placeholder="0" class="nominal"></div>
-
     </div>
-
-
 
     <div class="row-2">
-
       <div class="form-group"><label>EDC</label><input type="text" id="edc" placeholder="0" class="nominal"></div>
-
       <div class="form-group"><label>Lain-Lain</label><input type="text" id="lain" placeholder="0" class="nominal"></div>
-
     </div>
-
-
 
     <div class="total-box">
-
       Total Omset: Rp <span id="totalOmset">0</span>
-
     </div>
-
-
 
     <!-- PENJUALAN ITEM & PACKAGING -->
-
     <div class="section-title">📦 Penjualan Cup & Packaging (Qty)</div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>Cone</label><input type="number" id="cone" placeholder="0" class="item-count"></div>
-
       <div class="form-group"><label>Cone Lucky Sunday</label><input type="number" id="coneLucky" placeholder="0"></div>
-
     </div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>Cup 400</label><input type="number" id="cup400" placeholder="0" class="item-count"></div>
-
       <div class="form-group"><label>Cup 400 Packing</label><input type="number" id="cup400Packing" placeholder="0"></div>
-
     </div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>Cup 500</label><input type="number" id="cup500" placeholder="0" class="item-count"></div>
-
       <div class="form-group"><label>Cup 700</label><input type="number" id="cup700" placeholder="0" class="item-count"></div>
-
     </div>
 
-
-
     <div class="row-2">
-
       <div class="form-group"><label>Paper M</label><input type="number" id="paperM" placeholder="0" class="item-count"></div>
-
     </div>
-
-
 
     <div class="row-2">
-
       <div class="form-group"><label>Thermal Bag 2 Cup</label><input type="number" id="thermal2" placeholder="0" class="item-count"></div>
-
       <div class="form-group"><label>Thermal Bag 4 Cup</label><input type="number" id="thermal4" placeholder="0" class="item-count"></div>
-
     </div>
-
-
 
     <div class="form-group">
-
       <label>Boneka (Qty)</label>
-
       <input type="number" id="bonekaQty" placeholder="0" class="item-count">
-
     </div>
-
-
 
     <!-- BOX TOTAL PENJUALAN -->
-
     <div class="qty-total-box">
-
       Total Penjualan Item: <span id="totalPenjualanQty">0</span> Pcs
-
     </div>
-
-
 
     <!-- CATATAN LAINNYA -->
-
     <div class="section-title">🎈 Catatan Tambahan</div>
 
-
-
     <div class="form-group">
-
       <label>Ket. Boneka (Detail Jenis)</label>
-
       <input type="text" id="boneka" placeholder="Contoh: Snow King 1, Mini Snowman 1 (isi - jika kosong)">
-
     </div>
 
-
-
     <div class="form-group">
-
       <label>Uang Odong-Odong (Rp)</label>
-
       <input type="text" id="odong" placeholder="0" class="nominal-single">
-
     </div>
-
-
 
     <div class="form-group">
-
       <label>Catatan Opsional</label>
-
       <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
-
     </div>
-
-
 
     <button type="submit" id="btnNext">Lanjutkan / Buka Summary ➡️</button>
-
   </form>
-
 </div>
 
-
-
 <!-- MODAL / JENDELA POP-UP SUMMARY -->
-
 <div class="modal-overlay" id="modalRincian">
-
   <div class="modal-content">
-
     <div class="modal-header">📋 Summary Laporan Kasir</div>
-
     <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: -10px;">Periksa kembali data sebelum menyimpan & mengirim ke WhatsApp Group:</p>
-
     
-
     <table class="summary-table" id="tabelRincian">
-
       <!-- Data Rincian Ditempel Lewat JS -->
-
     </table>
-
-
 
     <div id="modalStatus" style="text-align: center; font-weight: bold; margin-bottom: 10px;"></div>
 
-
-
     <button type="button" class="btn-wa" id="btnSimpanWA" onclick="simpanDanKirimWA()">📲 Simpan Data & Kirim ke WA Group</button>
-
     <button type="button" class="btn-close" onclick="tutupModal()">Cek Ulang / Edit Form</button>
-
   </div>
-
 </div>
 
-
-
 <!-- IFRAME & FORM TERSEMBUNYI -->
-
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
 <form id="hiddenGoogleForm" action="https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec" method="POST" target="hidden_iframe" style="display:none;">
-
 </form>
 
-
-
 <script>
+  // --- FITUR MENCEGAH KLIK KANAN & INSPECT ELEMENT ---
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    // Blokir F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S
+    if (
+      e.key === 'F12' || 
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
+      (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S'))
+    ) {
+      e.preventDefault();
+    }
+  });
 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
-
   const PASSWORD_RAHASIA = "3108";
-
   let currentPayload = {};
 
-
-
   // --- CEK PASSWORD ---
-
   document.getElementById('passForm').addEventListener('submit', function(e) {
-
     e.preventDefault();
-
     const passInput = document.getElementById('inputPass').value;
-
     const errorMsg = document.getElementById('errorPass');
 
-
-
     if (passInput === PASSWORD_RAHASIA) {
-
       document.getElementById('modalPassword').style.display = 'none';
-
       errorMsg.style.display = 'none';
-
     } else {
-
       errorMsg.style.display = 'block';
-
       document.getElementById('inputPass').value = '';
-
       document.getElementById('inputPass').focus();
-
     }
-
   });
-
-
 
   // Auto Set Hari & Tanggal
-
   const now = new Date();
-
   const hariList = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
   document.getElementById('hari').value = hariList[now.getDay()];
-
   
-
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
-
   document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
 
-
-
   // --- FUNGSI FORMAT ANGKAT DENGAN TITIK (RIBUAN) ---
-
   function formatAngkaRibu(nilai) {
-
     let raw = nilai.toString().replace(/[^0-9]/g, '');
-
     if (!raw) return '';
-
     return parseInt(raw, 10).toLocaleString('id-ID');
-
   }
-
-
 
   function cleanNumber(nilai) {
-
     return Number(nilai.toString().replace(/[^0-9]/g, '')) || 0;
-
   }
-
-
 
   // Event listener untuk format otomatis input nominal
-
   const allNominalInputs = document.querySelectorAll('.nominal, .nominal-single');
-
   allNominalInputs.forEach(input => {
-
     input.addEventListener('input', function(e) {
-
       this.value = formatAngkaRibu(this.value);
-
       hitungTotal();
-
     });
-
   });
 
-
-
   // Hitung Total Omset
-
   const nominalInputs = document.querySelectorAll('.nominal');
-
   function hitungTotal() {
-
     let total = 0;
-
     nominalInputs.forEach(input => total += cleanNumber(input.value));
-
     document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
-
     return total;
-
   }
 
-
-
   // Hitung Total Penjualan Item (HANYA MENGHITUNG ITEM DENGAN CLASS 'item-count')
-
-  // Cone Lucky Sunday & Cup 400 Packing TIDAK termasuk di sini
-
   const itemCountInputs = document.querySelectorAll('.item-count');
-
   const allQtyInputs = document.querySelectorAll('input[type="number"]');
-
-
 
   allQtyInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
 
-
-
   function hitungTotalPenjualan() {
-
     let totalQty = 0;
-
     itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
-
     document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
-
     return totalQty;
-
   }
-
-
 
   function formatRupiah(val) {
-
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
-
   }
-
-
 
   // Buka Modal Summary
-
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
-
     e.preventDefault();
 
-
-
     currentPayload = {
-
       hari: document.getElementById('hari').value,
-
       tanggal: document.getElementById('tanggal').value,
-
       namaKasir: document.getElementById('namaKasir').value,
-
       omset: hitungTotal(),
-
       cash: cleanNumber(document.getElementById('cash').value),
-
       qris: cleanNumber(document.getElementById('qris').value),
-
       gojek: cleanNumber(document.getElementById('gojek').value),
-
       shopee: cleanNumber(document.getElementById('shopee').value),
-
       tiktok: cleanNumber(document.getElementById('tiktok').value),
-
       grab: cleanNumber(document.getElementById('grab').value),
-
       edc: cleanNumber(document.getElementById('edc').value),
-
       lain: cleanNumber(document.getElementById('lain').value),
-
       odong: cleanNumber(document.getElementById('odong').value),
-
       cone: document.getElementById('cone').value,
-
       coneLucky: document.getElementById('coneLucky').value,
-
       cup400: document.getElementById('cup400').value,
-
       cup400Packing: document.getElementById('cup400Packing').value,
-
       cup500: document.getElementById('cup500').value,
-
       cup700: document.getElementById('cup700').value,
-
       paperM: document.getElementById('paperM').value,
-
       thermal2: document.getElementById('thermal2').value,
-
       thermal4: document.getElementById('thermal4').value,
-
       bonekaQty: document.getElementById('bonekaQty').value,
-
       totalPenjualan: hitungTotalPenjualan(),
-
       boneka: document.getElementById('boneka').value,
-
       catatan: document.getElementById('catatan').value
-
     };
 
-
-
     document.getElementById('modalStatus').innerText = "";
-
     document.getElementById('btnSimpanWA').disabled = false;
-
     document.getElementById('btnSimpanWA').innerText = "📲 Simpan Data & Kirim ke WA Group";
 
-
-
     tampilkanRincianModal(currentPayload);
-
   });
 
-
-
   function tampilkanRincianModal(data) {
-
     const html = `
-
       <tr><td>Hari / Tanggal</td><td>${data.hari}, ${data.tanggal}</td></tr>
-
       <tr><td>Nama Kasir</td><td>${data.namaKasir}</td></tr>
-
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Rincian Pendapatan</td></tr>
-
       <tr><td>Cash (Tunai)</td><td>${formatRupiah(data.cash)}</td></tr>
-
       <tr><td>QRIS</td><td>${formatRupiah(data.qris)}</td></tr>
-
       <tr><td>Gojek</td><td>${formatRupiah(data.gojek)}</td></tr>
-
       <tr><td>ShopeeFood</td><td>${formatRupiah(data.shopee)}</td></tr>
-
       <tr><td>TikTok Food</td><td>${formatRupiah(data.tiktok)}</td></tr>
-
       <tr><td>GrabFood</td><td>${formatRupiah(data.grab)}</td></tr>
-
       <tr><td>EDC</td><td>${formatRupiah(data.edc)}</td></tr>
-
       <tr><td>Lain-Lain</td><td>${formatRupiah(data.lain)}</td></tr>
-
       <tr style="background:#ffe6e6;"><td style="color:#cc0000; font-weight:bold;">TOTAL OMSET</td><td style="color:#cc0000; font-weight:bold;">${formatRupiah(data.omset)}</td></tr>
-
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Penjualan Cup & Item</td></tr>
-
       <tr><td>Cone / Cone Lucky</td><td>${data.cone||0} / ${data.coneLucky||0}</td></tr>
-
       <tr><td>Cup 400 / Packing / 500 / 700</td><td>${data.cup400||0} / ${data.cup400Packing||0} / ${data.cup500||0} / ${data.cup700||0}</td></tr>
-
       <tr><td>Paper M / Thermal (2/4)</td><td>${data.paperM||0} / ${data.thermal2||0} / ${data.thermal4||0}</td></tr>
-
       <tr><td>Boneka (Qty)</td><td>${data.bonekaQty||0} Pcs</td></tr>
-
       <tr style="background:#e8f8f5;"><td style="color:#1e8449; font-weight:bold;">TOTAL PENJUALAN ITEM</td><td style="color:#1e8449; font-weight:bold;">${data.totalPenjualan} Pcs</td></tr>
-
       <tr style="background:#f9f9f9;"><td colspan="2" style="font-weight:bold; color:#e60012;">Catatan Tambahan</td></tr>
-
       <tr><td>Ket. Boneka</td><td>${data.boneka || '-'}</td></tr>
-
       <tr><td>Uang Odong-Odong</td><td>${formatRupiah(data.odong)}</td></tr>
-
       <tr><td>Catatan</td><td>${data.catatan || '-'}</td></tr>
-
     `;
-
     
-
     document.getElementById('tabelRincian').innerHTML = html;
-
     document.getElementById('modalRincian').style.display = 'flex';
-
   }
 
-
-
   // SIMPAN DAN KIRIM KE WA
-
   function simpanDanKirimWA() {
-
     const btnSimpan = document.getElementById('btnSimpanWA');
-
     const modalStatus = document.getElementById('modalStatus');
 
-
-
     btnSimpan.disabled = true;
-
     btnSimpan.innerText = "⏳ Menyimpan Data...";
-
     modalStatus.style.color = "blue";
-
     modalStatus.innerText = "Mengirim data ke Google Sheet...";
 
-
-
     try {
-
       // 1. Submit hidden form ke iframe
-
       const hiddenForm = document.getElementById('hiddenGoogleForm');
-
       hiddenForm.action = WEB_APP_URL; 
-
       hiddenForm.innerHTML = ''; 
 
-
-
       for (const key in currentPayload) {
-
         const input = document.createElement('input');
-
         input.type = 'hidden';
-
         input.name = key;
-
         input.value = currentPayload[key];
-
         hiddenForm.appendChild(input);
-
       }
-
-
 
       hiddenForm.submit();
 
-
-
       modalStatus.style.color = "green";
-
       modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
 
-
-
       // 2. Format Teks WhatsApp
-
       const d = currentPayload;
-
       const teksWA = `*LAPORAN KASIR MIXUE KEBALEN* 🍦
-
 ----------------------------------
-
 📅 *Hari/Tgl:* ${d.hari}, ${d.tanggal}
-
 👤 *Kasir:* ${d.namaKasir}
 
-
-
 💵 *RINCIAN PENDAPATAN:*
-
 • Cash: ${formatRupiah(d.cash)}
-
 • QRIS: ${formatRupiah(d.qris)}
-
 • Gojek: ${formatRupiah(d.gojek)}
-
 • ShopeeFood: ${formatRupiah(d.shopee)}
-
 • TikTok Food: ${formatRupiah(d.tiktok)}
-
 • GrabFood: ${formatRupiah(d.grab)}
-
 • EDC: ${formatRupiah(d.edc)}
-
 • Lain-lain: ${formatRupiah(d.lain)}
-
 ----------------------------------
-
 💰 *TOTAL OMSET: ${formatRupiah(d.omset)}*
-
 ----------------------------------
-
-
 
 📦 *PENJUALAN CUP & ITEM:*
-
 • Cone: ${d.cone || 0}
-
 • Cup 400: ${d.cup400 || 0}
-
 • Cup 500: ${d.cup500 || 0}
-
 • Cup 700: ${d.cup700 || 0}
-
 • Paper M: ${d.paperM || 0}
-
 • Thermal Bag 2 Cup: ${d.thermal2 || 0}
-
 • Thermal Bag 4 Cup: ${d.thermal4 || 0}
-
 • Boneka: ${d.bonekaQty || 0} Pcs
-
 ----------------------------------
-
 📊 *TOTAL PENJUALAN ITEM: ${d.totalPenjualan} Pcs*
-
 ----------------------------------
-
 • Cone Lucky Sunday: ${d.coneLucky || 0}
-
 • Cup 400 Packing: ${d.cup400Packing || 0}
 
-
-
 🎈 *CATATAN LAINNYA:*
-
 • Ket. Boneka: ${d.boneka || '-'}
-
 • Uang Odong-Odong: ${formatRupiah(d.odong)}
-
 • Catatan: ${d.catatan || '-'}
-
 ----------------------------------
-
 _Laporan ini telah otomatis tersimpan di Google Sheet._`;
 
-
-
       // 3. Buka WhatsApp
-
       const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`;
-
       window.open(urlWA, '_blank');
 
-
-
       // 4. Reset Form
-
       setTimeout(() => {
-
         document.getElementById('kasirForm').reset();
-
         document.getElementById('hari').value = hariList[now.getDay()];
-
         document.getElementById('tanggal').value = now.toLocaleDateString('id-ID', options);
-
         hitungTotal();
-
         hitungTotalPenjualan();
-
         tutupModal();
-
       }, 1500);
 
-
-
     } catch (err) {
-
       modalStatus.style.color = "red";
-
       modalStatus.innerText = "❌ Gagal menyimpan: " + err.message;
-
       btnSimpan.disabled = false;
-
       btnSimpan.innerText = "📲 Coba Simpan & Kirim WA Lagi";
-
     }
-
   }
-
-
 
   function tutupModal() {
-
     document.getElementById('modalRincian').style.display = 'none';
-
   }
-
 </script>
 
-
-
 </body>
-
 </html>
