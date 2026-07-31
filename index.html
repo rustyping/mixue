@@ -252,19 +252,23 @@
     return total;
   }
 
-  // Hitung Total Penjualan Item (HANYA MENGHITUNG ITEM DENGAN CLASS 'item-count')
-  // Cone Lucky Sunday & Cup 400 Packing TIDAK termasuk di sini
-  const itemCountInputs = document.querySelectorAll('.item-count');
-  const allQtyInputs = document.querySelectorAll('input[type="number"]');
+  // Hitung Total Penjualan Item (Qty)
+  const itemInputs = document.querySelectorAll('.item-qty');
+  itemInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
 
-  allQtyInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
+function hitungTotalPenjualan() {
+  let totalQty = 0;
+  // Menjumlahkan item utama saja (Cone Lucky Sunday & Cup 400 Packing otomatis dilewati)
+  itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
   
-  function hitungTotalPenjualan() {
-    let totalQty = 0;
-     itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
-    document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
-    return totalQty;
-  }
+  document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
+  return totalQty;
+}
+
+// Pasang pengetesan ke semua input angka agar total otomatis terupdate saat diisi
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener('input', hitungTotalPenjualan);
+});
 
   function formatRupiah(val) {
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
