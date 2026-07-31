@@ -64,7 +64,7 @@
 </div>
 
 <div class="card">
-  <span class="version-tag">v1.03</span>
+  <span class="version-tag">v1.04</span>
   <h2>🍦 Laporan Kasir Mixue Kebalen</h2>
   <form id="kasirForm">
     
@@ -252,13 +252,16 @@
     return total;
   }
 
-  // Hitung Total Penjualan Item (Qty)
-  const itemInputs = document.querySelectorAll('.item-qty');
-  itemInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
+  // Hitung Total Penjualan Item (HANYA MENGHITUNG ITEM DENGAN CLASS 'item-count')
+  // Cone Lucky Sunday & Cup 400 Packing TIDAK termasuk di sini
+  const itemCountInputs = document.querySelectorAll('.item-count');
+  const allQtyInputs = document.querySelectorAll('input[type="number"]');
 
+  allQtyInputs.forEach(input => input.addEventListener('input', hitungTotalPenjualan));
+  
   function hitungTotalPenjualan() {
     let totalQty = 0;
-    itemInputs.forEach(input => totalQty += Number(input.value) || 0);
+     itemCountInputs.forEach(input => totalQty += Number(input.value) || 0);
     document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
     return totalQty;
   }
