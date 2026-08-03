@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stok Opname - UD. Damai / Mixue</title>
+  <title>Stok Opname - Mixue</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -135,7 +135,7 @@
       gap: 8px;
     }
 
-/* Layout Input Satuan Bertingkat (Label di Atas) */
+    /* Layout Input Satuan Bertingkat (Label di Atas) */
     .inputs-flex { 
       display: flex; 
       flex-wrap: wrap; 
@@ -164,7 +164,7 @@
       text-overflow: ellipsis;
     }
 
-    /* Variasi Warna Berdasarkan Tingkat Satuan (Sesuai Referensi) */
+    /* Variasi Warna Berdasarkan Tingkat Satuan */
     .unit-tag-3 {
       background-color: #dbeafe;
       color: #1e40af; /* Biru: Dus / Karton / Ball */
@@ -195,17 +195,6 @@
       border-color: var(--primary);
       background-color: #ffffff;
       box-shadow: 0 0 0 2px rgba(230, 0, 18, 0.15);
-    }
-
-    .unit-tag { 
-      position: absolute; 
-      right: 6px; 
-      top: 50%; 
-      transform: translateY(-50%); 
-      font-size: 10px; 
-      font-weight: 600; 
-      color: var(--text-muted); 
-      pointer-events: none; 
     }
 
     /* Total Hasil Bersih Tanpa Bubble */
@@ -391,7 +380,7 @@
     });
   }
 
-function renderKatalog() {
+  function renderKatalog() {
     const container = document.getElementById('katalogContainer');
     if (processedKatalog.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
@@ -402,7 +391,6 @@ function renderKatalog() {
     processedKatalog.forEach((item, index) => {
       let inputsHtml = '';
       item.uniqueUnits.forEach(u => {
-        // Penentuan warna tag berdasarkan ID tingkat satuan (3: Karton/Dus, 2: Pak/Inner, 1: Pcs)
         const tagClass = `unit-tag-${u.id}`;
 
         inputsHtml += `
