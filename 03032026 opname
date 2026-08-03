@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Stok Opname - UD. Damai / Mixue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #e60012;
+      --primary-dark: #b3000e;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent-light: #fef2f2;
+      --radius: 12px;
+      --whatsapp: #25d366;
+    }
+
+    * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg); color: var(--text); padding: 12px; padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+    .app-container { max-width: 600px; margin: 0 auto; }
+    
+    .header-card { 
+      background: linear-gradient(135deg, #e60012 0%, #99000c 100%); 
+      color: #ffffff; 
+      border-radius: var(--radius); 
+      padding: 16px; 
+      margin-bottom: 10px; 
+      box-shadow: 0 4px 14px rgba(230, 0, 18, 0.25); 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+    .header-info p { font-size: 11px; opacity: 0.9; }
+    
+    .btn-reset-top {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s ease;
+    }
+    .btn-reset-top:active { background: rgba(255, 255, 255, 0.4); }
+
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
+    .section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    
+    /* Informasi Petugas Ramping (1 Baris Sejajar) */
+    .info-petugas-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+    }
+    .info-petugas-grid {
+      display: flex;
+      gap: 8px;
+    }
+    .info-petugas-grid .form-group {
+      margin-bottom: 0;
+      flex: 1;
+    }
+    .info-petugas-grid label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+    .info-petugas-grid input {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text);
+      background-color: #f8fafc;
+      outline: none;
+      height: 34px;
+    }
+    .info-petugas-grid input:focus {
+      border-color: var(--primary);
+      background-color: #ffffff;
+    }
+
+    /* Layout Kartu Bahan Baku */
+    .item-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      border-radius: 10px; 
+      padding: 10px 12px; 
+      margin-bottom: 8px; 
+    }
+    .item-card.filled { 
+      border-color: #fca5a5; 
+      background-color: #fffdfd; 
+    }
+    .item-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 8px; 
+    }
+    .item-name { 
+      font-weight: 600; 
+      font-size: 13px; 
+      color: var(--text); 
+    }
+    .category-badge { 
+      font-size: 9px; 
+      font-weight: 700; 
+      padding: 2px 6px; 
+      border-radius: 12px; 
+      background-color: var(--accent-light); 
+      color: var(--primary); 
+      text-transform: uppercase; 
+    }
+
+    /* Baris Utama Input + Total disebelah kanan */
+    .item-body-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Grid Input Satuan Kompak */
+    .inputs-flex { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 6px; 
+      flex: 1;
+    }
+
+    .input-unit-wrapper { 
+      position: relative; 
+      width: 75px; /* Lebar ringkas */
+    }
+
+    .input-with-tag { 
+      width: 100%;
+      padding: 6px 26px 6px 8px !important; 
+      font-weight: 600; 
+      font-size: 12px; 
+      height: 32px;
+      text-align: right;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: #f8fafc;
+      outline: none;
+    }
+    .input-with-tag:focus {
+      border-color: var(--primary);
+      background-color: #ffffff;
+    }
+
+    .unit-tag { 
+      position: absolute; 
+      right: 6px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      font-size: 10px; 
+      font-weight: 600; 
+      color: var(--text-muted); 
+      pointer-events: none; 
+    }
+
+    /* Total Hasil Bersih Tanpa Bubble */
+    .calc-result-side { 
+      background: transparent; 
+      padding: 0; 
+      text-align: right;
+      white-space: nowrap;
+      min-width: 65px;
+    }
+    .calc-result-side .total-label {
+      display: block;
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .calc-result-side .total-val {
+      color: var(--primary-dark); 
+      font-weight: 700; 
+      font-size: 13px;
+    }
+
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 16px; border-top: 1px solid var(--border); z-index: 100; }
+    .bottom-bar-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .summary-info { font-size: 12px; color: var(--text-muted); }
+    .summary-info strong { color: var(--primary); font-size: 15px; }
+    .btn-submit { background-color: var(--primary); color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; max-width: 200px; }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: #ffffff; width: 100%; max-width: 480px; max-height: 85vh; border-radius: var(--radius); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
+    .modal-header { padding: 16px; background: #f8fafc; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+    .modal-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .modal-body { padding: 16px; overflow-y: auto; flex: 1; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .summary-table th { text-align: left; padding: 8px; background: #f1f5f9; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    .summary-table td.qty-col { text-align: right; }
+
+    .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #f8fafc; }
+    .btn-cancel { background: #e2e8f0; color: #334155; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-confirm-wa { background: var(--whatsapp); color: #ffffff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+    .loading-state { text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 13px; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto 10px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header-card">
+    <div class="header-info">
+      <h1>Form Stok Opname</h1>
+      <p id="currentDateTime">Memuat tanggal & waktu...</p>
+    </div>
+    <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
+  </div>
+
+  <form id="opnameForm">
+    <!-- Informasi Petugas Ramping -->
+    <div class="info-petugas-card">
+      <div class="info-petugas-grid">
+        <div class="form-group">
+          <label for="checker">Checker *</label>
+          <input type="text" id="checker" required placeholder="Nama Anda" oninput="saveDraft()">
+        </div>
+        <div class="form-group">
+          <label for="catatanUmum">Catatan Tambahan</label>
+          <input type="text" id="catatanUmum" placeholder="Opsional..." oninput="saveDraft()">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📦 Input Stok Bahan Baku</div>
+      <div style="margin-bottom: 10px;">
+        <input type="text" id="searchInput" placeholder="🔍 Cari nama bahan..." oninput="filterKatalog()" style="padding:8px 12px; font-size:13px; width:100%; border:1px solid var(--border); border-radius:8px;">
+      </div>
+
+      <div id="katalogContainer">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          Mengambil data katalog dari Google Sheet...
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="bottom-bar-inner">
+        <div class="summary-info">
+          Terisi: <strong id="filledCount">0</strong> item
+        </div>
+        <button type="button" class="btn-submit" id="btnPreview" onclick="showConfirmationModal()">Cek Ringkasan</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- MODAL POPUP KONFIRMASI -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Konfirmasi Ringkasan Opname</h3>
+      <p id="modalMeta">Checker: -</p>
+    </div>
+    <div class="modal-body">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Barang & Rincian Input</th>
+            <th style="text-align: right;">Total Hasil</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTableBody">
+          <!-- Item terisi disisipkan via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" onclick="closeConfirmationModal()">Batal / Edit</button>
+      <button type="button" class="btn-confirm-wa" id="btnFinalSubmit" onclick="submitFinalData()">
+        📱 Simpan & Pilih Grup WA
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9AibDxDF8kFUFW6hvZvDBsDEMzIghv6_KfmNPOpihTioMhSJs7VzUPH8_JB2xx6Yv/exec";
+  const STORAGE_KEY = "mixue_stok_opname_draft";
+  let rawKatalog = [];
+  let processedKatalog = [];
+  let currentPayload = null;
+
+  function updateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('currentDateTime').innerText = now.toLocaleDateString('id-ID', options);
+  }
+  updateTime();
+
+  window.onload = function() {
+    fetch(SCRIPT_URL + "?action=getKatalog")
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'success') {
+          processKatalogUnits(res.data);
+          renderKatalog();
+          loadDraft();
+        } else {
+          throw new Error("Gagal mengambil data katalog");
+        }
+      })
+      .catch(err => {
+        document.getElementById('katalogContainer').innerHTML = 
+          '<div style="color:var(--primary); text-align:center; padding:15px; font-size:13px;">Gagal memuat katalog: ' + err.message + '</div>';
+      });
+  };
+
+  function processKatalogUnits(data) {
+    rawKatalog = data || [];
+    processedKatalog = rawKatalog.map(item => {
+      let rawUnits = [];
+      if (item.satuan3 && item.konversi3 > 0) rawUnits.push({ id: 3, label: item.satuan3, factor: Number(item.konversi3) });
+      if (item.satuan2 && item.konversi2 > 0) rawUnits.push({ id: 2, label: item.satuan2, factor: Number(item.konversi2) });
+      rawUnits.push({ id: 1, label: item.satuan1 || 'Pcs', factor: Number(item.konversi1 || 1) });
+
+      let uniqueUnits = [];
+      let seenFactors = new Set();
+      rawUnits.sort((a, b) => b.factor - a.factor);
+
+      rawUnits.forEach(u => {
+        if (!seenFactors.has(u.factor)) {
+          seenFactors.add(u.factor);
+          uniqueUnits.push(u);
+        }
+      });
+
+      return { ...item, uniqueUnits: uniqueUnits };
+    });
+  }
+
+  function renderKatalog() {
+    const container = document.getElementById('katalogContainer');
+    if (processedKatalog.length === 0) {
+      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
+      return;
+    }
+
+    let html = '';
+    processedKatalog.forEach((item, index) => {
+      let inputsHtml = '';
+      item.uniqueUnits.forEach(u => {
+        inputsHtml += `
+          <div class="input-unit-wrapper">
+            <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+            <span class="unit-tag">${u.label}</span>
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="item-card" id="card_${index}">
+          <div class="item-header">
+            <div class="item-name">${item.namaBarang}</div>
+            ${item.kategori ? `<span class="category-badge">${item.kategori}</span>` : ''}
+          </div>
+          <div class="item-body-row">
+            <div class="inputs-flex">${inputsHtml}</div>
+            <div class="calc-result-side">
+              <span class="total-label">Total (${item.satuan1 || 'Pcs'})</span>
+              <span class="total-val" id="totalPcs_${index}">0</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+    updateCounter();
+  }
+
+  function calculateRow(index, triggerSave = true) {
+    const item = processedKatalog[index];
+    let totalPcs = 0;
+    let hasValue = false;
+
+    item.uniqueUnits.forEach(u => {
+      const val = parseFloat(document.getElementById(`unit_${index}_${u.id}`)?.value || 0);
+      if (val > 0) {
+        hasValue = true;
+        totalPcs += (val * u.factor);
+      }
+    });
+
+    document.getElementById(`totalPcs_${index}`).innerText = `${totalPcs}`;
+    const card = document.getElementById(`card_${index}`);
+    if (hasValue) card.classList.add('filled');
+    else card.classList.remove('filled');
+
+    updateCounter();
+    if (triggerSave) saveDraft();
+  }
+
+  function filterKatalog() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    processedKatalog.forEach((item, index) => {
+      const card = document.getElementById(`card_${index}`);
+      if (card) {
+        const match = item.namaBarang.toLowerCase().includes(keyword) || (item.kategori && item.kategori.toLowerCase().includes(keyword));
+        card.style.display = match ? 'block' : 'none';
+      }
+    });
+  }
+
+  function updateCounter() {
+    let count = 0;
+    processedKatalog.forEach((_, index) => {
+      const card = document.getElementById(`card_${index}`);
+      if (card && card.classList.contains('filled')) count++;
+    });
+    document.getElementById('filledCount').innerText = count;
+  }
+
+  function saveDraft() {
+    const draft = {
+      checker: document.getElementById('checker').value,
+      catatanUmum: document.getElementById('catatanUmum').value,
+      inputs: {}
+    };
+
+    processedKatalog.forEach((item, index) => {
+      let itemInputs = {};
+      let hasValue = false;
+      item.uniqueUnits.forEach(u => {
+        const val = document.getElementById(`unit_${index}_${u.id}`)?.value || '';
+        if (val !== '') {
+          itemInputs[u.id] = val;
+          hasValue = true;
+        }
+      });
+      if (hasValue) draft.inputs[item.namaBarang] = itemInputs;
+    });
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }
+
+  function loadDraft() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+
+    try {
+      const draft = JSON.parse(saved);
+      if (draft.checker) document.getElementById('checker').value = draft.checker;
+      if (draft.catatanUmum) document.getElementById('catatanUmum').value = draft.catatanUmum;
+
+      if (draft.inputs) {
+        processedKatalog.forEach((item, index) => {
+          const itemData = draft.inputs[item.namaBarang];
+          if (itemData) {
+            item.uniqueUnits.forEach(u => {
+              if (itemData[u.id] !== undefined) {
+                const el = document.getElementById(`unit_${index}_${u.id}`);
+                if (el) el.value = itemData[u.id];
+              }
+            });
+            calculateRow(index, false);
+          }
+        });
+      }
+    } catch(e) {
+      console.error("Gagal memuat draf tersimpan", e);
+    }
+  }
+
+  function resetAllInputs() {
+    if (confirm("Apakah Anda yakin ingin mengosongkan semua inputan stok opname?")) {
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('opnameForm').reset();
+      processedKatalog.forEach((item, index) => {
+        const card = document.getElementById(`card_${index}`);
+        if (card) card.classList.remove('filled');
+        document.getElementById(`totalPcs_${index}`).innerText = `0`;
+      });
+      updateCounter();
+    }
+  }
+
+  function showConfirmationModal() {
+    const checker = document.getElementById('checker').value.trim();
+    if (!checker) {
+      alert('Harap isi Nama Checker / Pegawai terlebih dahulu!');
+      document.getElementById('checker').focus();
+      return;
+    }
+
+    let itemsPayload = [];
+    let tbodyHtml = '';
+
+    processedKatalog.forEach((item, index) => {
+      let totalPcs = 0;
+      let rincian = [];
+
+      item.uniqueUnits.forEach(u => {
+        const val = parseFloat(document.getElementById(`unit_${index}_${u.id}`)?.value || 0);
+        if (val > 0) {
+          totalPcs += (val * u.factor);
+          rincian.push(`${val} ${u.label}`);
+        }
+      });
+
+      if (totalPcs > 0) {
+        const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
+
+        itemsPayload.push({
+          namaBarang: item.namaBarang,
+          rincianText: rincianStr,
+          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs')
+        });
+
+        tbodyHtml += `
+          <tr>
+            <td>
+              <div style="font-weight:700; color:var(--text); font-size:13px;">${item.namaBarang}</div>
+              <div style="font-size:12px; color:#475569; margin-top:3px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:inline-block;">
+                Input: <strong>${rincianStr}</strong>
+              </div>
+            </td>
+            <td class="qty-col">
+              <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Total</span><br>
+              <strong style="color:var(--primary); font-size:14px;">${totalPcs} ${item.satuan1 || 'Pcs'}</strong>
+            </td>
+          </tr>
+        `;
+      }
+    });
+
+    if (itemsPayload.length === 0) {
+      alert('Harap isi minimal 1 stok bahan baku sebelum menyimpan!');
+      return;
+    }
+
+    currentPayload = {
+      checker: checker,
+      catatanUmum: document.getElementById('catatanUmum').value.trim(),
+      items: itemsPayload
+    };
+
+    document.getElementById('modalMeta').innerText = `Checker: ${checker} | Total: ${itemsPayload.length} Item`;
+    document.getElementById('summaryTableBody').innerHTML = tbodyHtml;
+    document.getElementById('confirmModal').classList.add('active');
+  }
+
+  function closeConfirmationModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+  }
+
+  function submitFinalData() {
+    if (!currentPayload) return;
+
+    const btnFinal = document.getElementById('btnFinalSubmit');
+    btnFinal.disabled = true;
+    btnFinal.innerText = "Mengirim...";
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(currentPayload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.status === 'success') {
+        localStorage.removeItem(STORAGE_KEY);
+        closeConfirmationModal();
+        document.getElementById('opnameForm').reset();
+        
+        processedKatalog.forEach((item, index) => {
+          const card = document.getElementById(`card_${index}`);
+          if (card) card.classList.remove('filled');
+          document.getElementById(`totalPcs_${index}`).innerText = `0`;
+        });
+        updateCounter();
+
+        if (res.waUrl) {
+          window.location.href = res.waUrl;
+        }
+
+        btnFinal.disabled = false;
+        btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
+      } else {
+        alert("Gagal menyimpan: " + res.message);
+        btnFinal.disabled = false;
+        btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
+      }
+    })
+    .catch(err => {
+      alert('Gagal mengirim data: ' + err.message);
+      btnFinal.disabled = false;
+      btnFinal.innerHTML = "📱 Simpan & Pilih Grup WA";
+    });
+  }
+</script>
+
+</body>
+</html>
