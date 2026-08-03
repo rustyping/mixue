@@ -135,34 +135,66 @@
       gap: 8px;
     }
 
-    /* Grid Input Satuan Kompak */
+/* Layout Input Satuan Bertingkat (Label di Atas) */
     .inputs-flex { 
       display: flex; 
       flex-wrap: wrap; 
-      gap: 6px; 
+      gap: 8px; 
       flex: 1;
     }
 
     .input-unit-wrapper { 
-      position: relative; 
-      width: 75px; /* Lebar ringkas */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 72px; /* Lebar pas untuk layar HP */
+    }
+
+    .unit-tag { 
+      font-size: 10px; 
+      font-weight: 700; 
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Variasi Warna Berdasarkan Tingkat Satuan (Sesuai Referensi) */
+    .unit-tag-3 {
+      background-color: #dbeafe;
+      color: #1e40af; /* Biru: Dus / Karton / Ball */
+    }
+    .unit-tag-2 {
+      background-color: #fef3c7;
+      color: #92400e; /* Kuning/Cokelat: Pak / Inner / Pack */
+    }
+    .unit-tag-1 {
+      background-color: #e0e7ff;
+      color: #3730a3; /* Nila/Ungu: Pcs / Bag / Botol */
     }
 
     .input-with-tag { 
       width: 100%;
-      padding: 6px 26px 6px 8px !important; 
-      font-weight: 600; 
-      font-size: 12px; 
-      height: 32px;
-      text-align: right;
+      padding: 6px; 
+      font-weight: 700; 
+      font-size: 13px; 
+      height: 36px;
+      text-align: center;
       border: 1px solid var(--border);
       border-radius: 6px;
       background-color: #f8fafc;
       outline: none;
+      transition: all 0.2s ease;
     }
     .input-with-tag:focus {
       border-color: var(--primary);
       background-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(230, 0, 18, 0.15);
     }
 
     .unit-tag { 
@@ -359,7 +391,7 @@
     });
   }
 
-  function renderKatalog() {
+function renderKatalog() {
     const container = document.getElementById('katalogContainer');
     if (processedKatalog.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
@@ -370,10 +402,13 @@
     processedKatalog.forEach((item, index) => {
       let inputsHtml = '';
       item.uniqueUnits.forEach(u => {
+        // Penentuan warna tag berdasarkan ID tingkat satuan (3: Karton/Dus, 2: Pak/Inner, 1: Pcs)
+        const tagClass = `unit-tag-${u.id}`;
+
         inputsHtml += `
           <div class="input-unit-wrapper">
+            <span class="unit-tag ${tagClass}">${u.label}</span>
             <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
-            <span class="unit-tag">${u.label}</span>
           </div>
         `;
       });
