@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stok Opname - Mixue v1.07</title>
+  <title>Stok Opname - Mixue v1.08</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -220,7 +220,16 @@
       color: var(--text-muted);
       white-space: nowrap;
     }
+
+    /* Custom Wrapper Format DD/MM/YYYY */
+    .exp-date-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
     .exp-date-input {
+      width: 100%;
       padding: 4px 6px;
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -229,8 +238,17 @@
       background-color: #f8fafc;
       outline: none;
       height: 30px;
-      flex: 1;
     }
+    .exp-date-picker-hidden {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      cursor: pointer;
+    }
+
     .exp-qty-input {
       padding: 4px 6px;
       border: 1px solid var(--border);
@@ -325,11 +343,11 @@
 <div class="app-container">
   <div class="header-card">
     <div class="header-info">
-      <h1>SO Mixue Kebalen</h1>
+      <h1>Stok Opname Mixue Kebalen</h1>
       <p id="currentDateTime">Memuat tanggal & waktu...</p>
     </div>
     <div class="header-actions">
-      <span class="version-badge">v1.07</span>
+      <span class="version-badge">v1.08</span>
       <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
     </div>
   </div>
@@ -485,7 +503,10 @@
           <div class="exp-date-container" id="exp_container_${index}">
             <div class="exp-row">
               <span class="exp-date-label">⏳ Exp:</span>
-              <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+              <div class="exp-date-wrapper">
+                <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+              </div>
               <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
               <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
             </div>
@@ -515,6 +536,28 @@
     updateCounter();
   }
 
+  // Konversi Format YYYY-MM-DD ke DD/MM/YYYY
+  function formatDateID(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  // Handler saat Tanggal Dipilih dari Calendar Pop-up
+  function handleDateChange(pickerInput, index) {
+    const wrapper = pickerInput.closest('.exp-date-wrapper');
+    const textInput = wrapper.querySelector('.exp-date-input');
+    if (pickerInput.value) {
+      textInput.value = formatDateID(pickerInput.value);
+    } else {
+      textInput.value = '';
+    }
+    saveDraft();
+  }
+
   // Fungsi untuk Menambah Baris Input Exp Date + Kuantitas
   function addExpRow(index, dateValue = '', qtyValue = '') {
     const container = document.getElementById(`exp_container_${index}`);
@@ -522,12 +565,16 @@
 
     const item = processedKatalog[index];
     const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+    const formattedText = formatDateID(dateValue);
 
     const div = document.createElement('div');
     div.className = 'exp-row';
     div.innerHTML = `
       <span class="exp-date-label" style="opacity:0;">⏳ Exp:</span>
-      <input type="date" class="exp-date-input exp_date_${index}" value="${dateValue}" onchange="saveDraft()">
+      <div class="exp-date-wrapper">
+        <input type="text" class="exp-date-input exp_text_${index}" value="${formattedText}" placeholder="dd/mm/yyyy" readonly>
+        <input type="date" class="exp-date-picker-hidden exp_date_${index}" value="${dateValue}" onchange="handleDateChange(this, ${index})">
+      </div>
       <input type="text" class="exp-qty-input exp_qty_${index}" value="${qtyValue}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
       <button type="button" class="btn-exp-remove" onclick="removeExpRow(this, ${index})">-</button>
     `;
@@ -540,25 +587,15 @@
     saveDraft();
   }
 
-  // Format YYYY-MM-DD ke DD/MM/YYYY
-  function formatDateID(dateStr) {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dateStr;
-  }
-
   // Pengambilan Seluruh Tanggal Exp Date & Keterangannya
   function getExpDetailsForItem(index) {
-    const dateInputs = document.querySelectorAll(`.exp_date_${index}`);
+    const textInputs = document.querySelectorAll(`.exp_text_${index}`);
     const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
     
     let list = [];
-    dateInputs.forEach((inp, i) => {
+    textInputs.forEach((inp, i) => {
       if (inp.value) {
-        const formattedDate = formatDateID(inp.value);
+        const formattedDate = inp.value; // Sudah berformat DD/MM/YYYY
         const qtyText = qtyInputs[i] ? qtyInputs[i].value.trim() : '';
         list.push({
           date: formattedDate,
@@ -679,10 +716,13 @@
           // Restore Exp Details
           if (draft.expDetails && draft.expDetails[item.namaBarang]) {
             const expList = draft.expDetails[item.namaBarang];
-            const firstDate = document.querySelector(`.exp_date_${index}`);
+            const firstPicker = document.querySelector(`.exp_date_${index}`);
             const firstQty = document.querySelector(`.exp_qty_${index}`);
 
-            if (firstDate && expList[0]) firstDate.value = expList[0].date;
+            if (firstPicker && expList[0]) {
+              firstPicker.value = expList[0].date;
+              handleDateChange(firstPicker, index);
+            }
             if (firstQty && expList[0]) firstQty.value = expList[0].qty;
 
             for (let i = 1; i < expList.length; i++) {
@@ -712,7 +752,10 @@
           container.innerHTML = `
             <div class="exp-row">
               <span class="exp-date-label">⏳ Exp:</span>
-              <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+              <div class="exp-date-wrapper">
+                <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+              </div>
               <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
               <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
             </div>
@@ -749,7 +792,7 @@
       if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
 
-        // Mengambil semua detail Exp Date + Qty
+        // Mengambil semua detail Exp Date + Qty (dengan format DD/MM/YYYY)
         const expDetails = getExpDetailsForItem(index);
         
         // Format Teks Exp Date
@@ -844,7 +887,10 @@
             container.innerHTML = `
               <div class="exp-row">
                 <span class="exp-date-label">⏳ Exp:</span>
-                <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+                <div class="exp-date-wrapper">
+                  <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                  <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+                </div>
                 <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
                 <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
               </div>
