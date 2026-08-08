@@ -595,7 +595,7 @@
     let list = [];
     textInputs.forEach((inp, i) => {
       if (inp.value) {
-        const formattedDate = inp.value; // Sudah berformat DD/MM/YYYY
+        const formattedDate = inp.value;
         const qtyText = qtyInputs[i] ? qtyInputs[i].value.trim() : '';
         list.push({
           date: formattedDate,
@@ -649,6 +649,7 @@
     document.getElementById('filledCount').innerText = count;
   }
 
+  // 1. AUTO-SAVE REAL-TIME
   function saveDraft() {
     const draft = {
       checker: document.getElementById('checker').value,
@@ -669,7 +670,6 @@
       });
       if (hasValue) draft.inputs[item.namaBarang] = itemInputs;
 
-      // Simpan Array Exp Date + Qty
       const dateInputs = document.querySelectorAll(`.exp_date_${index}`);
       const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
       let expList = [];
@@ -691,6 +691,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
   }
 
+  // 2. AUTO-LOAD DRAFT SAAT BUKA HALAMAN
   function loadDraft() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
@@ -713,7 +714,6 @@
             calculateRow(index, false);
           }
 
-          // Restore Exp Details
           if (draft.expDetails && draft.expDetails[item.namaBarang]) {
             const expList = draft.expDetails[item.namaBarang];
             const firstPicker = document.querySelector(`.exp_date_${index}`);
@@ -732,10 +732,11 @@
         });
       }
     } catch(e) {
-      console.error("Gagal memuat draf tersimpan", e);
+      console.error("Gagal memuat draft tersimpan", e);
     }
   }
 
+  // 3. MANUAL RESET ONLY (Satu-satunya cara menghapus draft)
   function resetAllInputs() {
     if (confirm("Apakah Anda yakin ingin mengosongkan semua inputan stok opname?")) {
       localStorage.removeItem(STORAGE_KEY);
@@ -745,7 +746,6 @@
         if (card) card.classList.remove('filled');
         document.getElementById(`totalPcs_${index}`).innerText = `0`;
         
-        // Reset Exp Container ke bentuk default
         const container = document.getElementById(`exp_container_${index}`);
         if (container) {
           const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
@@ -791,14 +791,9 @@
 
       if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
-
-        // Mengambil semua detail Exp Date + Qty (dengan format DD/MM/YYYY)
         const expDetails = getExpDetailsForItem(index);
-        
-        // Format Teks Exp Date
         let expTextFormatted = expDetails.map(e => e.displayText).join(", ");
         
-        // Format Teks Modal HTML (Baris per baris)
         let expHtmlModal = '';
         if (expDetails.length > 0) {
           expHtmlModal = `<div style="font-size:11px; color:#b91c1c; margin-top:4px; font-weight:600; line-height:1.4;">⏳ Exp Date:<br>`;
@@ -858,6 +853,7 @@
     document.getElementById('confirmModal').classList.remove('active');
   }
 
+  // 4. SUBMIT TANPA CLEAR DRAFT
   function submitFinalData() {
     if (!currentPayload) return;
 
@@ -872,32 +868,10 @@
     .then(res => res.json())
     .then(res => {
       if (res.status === 'success') {
-        localStorage.removeItem(STORAGE_KEY);
         closeConfirmationModal();
-        document.getElementById('opnameForm').reset();
         
-        processedKatalog.forEach((item, index) => {
-          const card = document.getElementById(`card_${index}`);
-          if (card) card.classList.remove('filled');
-          document.getElementById(`totalPcs_${index}`).innerText = `0`;
-          
-          const container = document.getElementById(`exp_container_${index}`);
-          if (container) {
-            const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
-            container.innerHTML = `
-              <div class="exp-row">
-                <span class="exp-date-label">⏳ Exp:</span>
-                <div class="exp-date-wrapper">
-                  <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
-                  <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
-                </div>
-                <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
-                <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
-              </div>
-            `;
-          }
-        });
-        updateCounter();
+        // PENTING: Draft & Isian Form TIDAK DIBERSIHKAN di sini.
+        // Data tetap ada di localStorage sampai pegawai menekan tombol "🔄 Reset" secara manual.
 
         if (res.waUrl) {
           window.location.href = res.waUrl;
