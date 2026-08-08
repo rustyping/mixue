@@ -554,10 +554,27 @@
       if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
 
+        // 1. Ambil input Exp Date jika diisi
+        let expDateFormatted = '';
+        const rawExp = document.getElementById(`exp_${index}`)?.value || '';
+        if (rawExp) {
+          const parts = rawExp.split('-');
+          if (parts.length === 3) {
+            expDateFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`; // Format DD/MM/YYYY
+          }
+        }
+
+        // 2. Gabungkan teks rincian dengan informasi Exp Date untuk WhatsApp
+        let rincianLengkap = rincianStr;
+        if (expDateFormatted) {
+          rincianLengkap += ` (Exp: ${expDateFormatted})`;
+        }
+
         itemsPayload.push({
           namaBarang: item.namaBarang,
-          rincianText: rincianStr,
-          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs')
+          rincianText: rincianLengkap, // <--- Sudah termasuk informasi Exp Date
+          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs'),
+          expDate: expDateFormatted
         });
 
         tbodyHtml += `
@@ -567,6 +584,7 @@
               <div style="font-size:12px; color:#475569; margin-top:3px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:inline-block;">
                 Input: <strong>${rincianStr}</strong>
               </div>
+              ${expDateFormatted ? `<div style="font-size:11px; color:#b91c1c; margin-top:3px; font-weight:600;">⏳ Exp: ${expDateFormatted}</div>` : ''}
             </td>
             <td class="qty-col">
               <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Total</span><br>
