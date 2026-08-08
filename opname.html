@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stok Opname - Mixue v1.06</title>
+  <title>Stok Opname - Mixue v1.07</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -221,7 +221,7 @@
       white-space: nowrap;
     }
     .exp-date-input {
-      padding: 4px 8px;
+      padding: 4px 6px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 11px;
@@ -229,6 +229,18 @@
       background-color: #f8fafc;
       outline: none;
       height: 30px;
+      flex: 1;
+    }
+    .exp-qty-input {
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text);
+      background-color: #f8fafc;
+      outline: none;
+      height: 30px;
+      width: 85px;
     }
     .btn-exp-add {
       background: #e0e7ff;
@@ -243,6 +255,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     .btn-exp-remove {
       background: #fee2e2;
@@ -257,6 +270,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .calc-result-side { 
@@ -294,7 +308,7 @@
     .modal-body { padding: 16px; overflow-y: auto; flex: 1; }
     .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .summary-table th { text-align: left; padding: 8px; background: #f1f5f9; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
     .summary-table td.qty-col { text-align: right; }
 
     .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #f8fafc; }
@@ -315,7 +329,7 @@
       <p id="currentDateTime">Memuat tanggal & waktu...</p>
     </div>
     <div class="header-actions">
-      <span class="version-badge">v1.06</span>
+      <span class="version-badge">v1.07</span>
       <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
     </div>
   </div>
@@ -466,11 +480,13 @@
 
       let expHtml = '';
       if (item.kategori && item.kategori.toString().trim().toLowerCase() === 'bahanbaku') {
+        const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
         expHtml = `
           <div class="exp-date-container" id="exp_container_${index}">
             <div class="exp-row">
-              <span class="exp-date-label">⏳ Exp Date:</span>
-              <input type="date" class="exp-date-input exp_field_${index}" onchange="saveDraft()">
+              <span class="exp-date-label">⏳ Exp:</span>
+              <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+              <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
               <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
             </div>
           </div>
@@ -499,40 +515,59 @@
     updateCounter();
   }
 
-  // Fungsi untuk Menambah Baris Input Exp Date
-  function addExpRow(index, value = '') {
+  // Fungsi untuk Menambah Baris Input Exp Date + Kuantitas
+  function addExpRow(index, dateValue = '', qtyValue = '') {
     const container = document.getElementById(`exp_container_${index}`);
     if (!container) return;
+
+    const item = processedKatalog[index];
+    const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
 
     const div = document.createElement('div');
     div.className = 'exp-row';
     div.innerHTML = `
-      <span class="exp-date-label" style="opacity:0;">⏳ Exp Date:</span>
-      <input type="date" class="exp-date-input exp_field_${index}" value="${value}" onchange="saveDraft()">
+      <span class="exp-date-label" style="opacity:0;">⏳ Exp:</span>
+      <input type="date" class="exp-date-input exp_date_${index}" value="${dateValue}" onchange="saveDraft()">
+      <input type="text" class="exp-qty-input exp_qty_${index}" value="${qtyValue}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
       <button type="button" class="btn-exp-remove" onclick="removeExpRow(this, ${index})">-</button>
     `;
     container.appendChild(div);
   }
 
-  // Fungsi untuk Menghapus Baris Input Exp Date
+  // Fungsi untuk Menghapus Baris Exp Date
   function removeExpRow(btn, index) {
     btn.closest('.exp-row').remove();
     saveDraft();
   }
 
-  // Pengambilan Seluruh Tanggal Exp Date suatu Item
-  function getExpDatesForItem(index) {
-    const inputs = document.querySelectorAll(`.exp_field_${index}`);
-    let dates = [];
-    inputs.forEach(inp => {
+  // Format YYYY-MM-DD ke DD/MM/YYYY
+  function formatDateID(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  // Pengambilan Seluruh Tanggal Exp Date & Keterangannya
+  function getExpDetailsForItem(index) {
+    const dateInputs = document.querySelectorAll(`.exp_date_${index}`);
+    const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
+    
+    let list = [];
+    dateInputs.forEach((inp, i) => {
       if (inp.value) {
-        const parts = inp.value.split('-');
-        if (parts.length === 3) {
-          dates.push(`${parts[2]}/${parts[1]}/${parts[0]}`); // Format DD/MM/YYYY
-        }
+        const formattedDate = formatDateID(inp.value);
+        const qtyText = qtyInputs[i] ? qtyInputs[i].value.trim() : '';
+        list.push({
+          date: formattedDate,
+          qty: qtyText,
+          displayText: qtyText ? `exp ${formattedDate} ${qtyText}` : `exp ${formattedDate}`
+        });
       }
     });
-    return dates;
+    return list;
   }
 
   function calculateRow(index, triggerSave = true) {
@@ -582,7 +617,7 @@
       checker: document.getElementById('checker').value,
       catatanUmum: document.getElementById('catatanUmum').value,
       inputs: {},
-      expDates: {}
+      expDetails: {}
     };
 
     processedKatalog.forEach((item, index) => {
@@ -597,14 +632,22 @@
       });
       if (hasValue) draft.inputs[item.namaBarang] = itemInputs;
 
-      // Simpan Array Exp Date
-      const inputs = document.querySelectorAll(`.exp_field_${index}`);
+      // Simpan Array Exp Date + Qty
+      const dateInputs = document.querySelectorAll(`.exp_date_${index}`);
+      const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
       let expList = [];
-      inputs.forEach(inp => {
-        if (inp.value) expList.push(inp.value);
+
+      dateInputs.forEach((inp, i) => {
+        if (inp.value) {
+          expList.push({
+            date: inp.value,
+            qty: qtyInputs[i] ? qtyInputs[i].value : ''
+          });
+        }
       });
+
       if (expList.length > 0) {
-        draft.expDates[item.namaBarang] = expList;
+        draft.expDetails[item.namaBarang] = expList;
       }
     });
 
@@ -633,14 +676,17 @@
             calculateRow(index, false);
           }
 
-          // Restore Multiple Exp Dates
-          if (draft.expDates && draft.expDates[item.namaBarang]) {
-            const expList = draft.expDates[item.namaBarang];
-            const firstInput = document.querySelector(`.exp_field_${index}`);
-            if (firstInput && expList[0]) firstInput.value = expList[0];
+          // Restore Exp Details
+          if (draft.expDetails && draft.expDetails[item.namaBarang]) {
+            const expList = draft.expDetails[item.namaBarang];
+            const firstDate = document.querySelector(`.exp_date_${index}`);
+            const firstQty = document.querySelector(`.exp_qty_${index}`);
+
+            if (firstDate && expList[0]) firstDate.value = expList[0].date;
+            if (firstQty && expList[0]) firstQty.value = expList[0].qty;
 
             for (let i = 1; i < expList.length; i++) {
-              addExpRow(index, expList[i]);
+              addExpRow(index, expList[i].date, expList[i].qty);
             }
           }
         });
@@ -659,13 +705,15 @@
         if (card) card.classList.remove('filled');
         document.getElementById(`totalPcs_${index}`).innerText = `0`;
         
-        // Reset Exp Container ke asal
+        // Reset Exp Container ke bentuk default
         const container = document.getElementById(`exp_container_${index}`);
         if (container) {
+          const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
           container.innerHTML = `
             <div class="exp-row">
-              <span class="exp-date-label">⏳ Exp Date:</span>
-              <input type="date" class="exp-date-input exp_field_${index}" onchange="saveDraft()">
+              <span class="exp-date-label">⏳ Exp:</span>
+              <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+              <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
               <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
             </div>
           `;
@@ -701,20 +749,32 @@
       if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
 
-        // Mengambil semua Exp Date yang diisi
-        const expDates = getExpDatesForItem(index);
-        const expStrFormatted = expDates.join(", ");
+        // Mengambil semua detail Exp Date + Qty
+        const expDetails = getExpDetailsForItem(index);
+        
+        // Format Teks Exp Date
+        let expTextFormatted = expDetails.map(e => e.displayText).join(", ");
+        
+        // Format Teks Modal HTML (Baris per baris)
+        let expHtmlModal = '';
+        if (expDetails.length > 0) {
+          expHtmlModal = `<div style="font-size:11px; color:#b91c1c; margin-top:4px; font-weight:600; line-height:1.4;">⏳ Exp Date:<br>`;
+          expDetails.forEach(e => {
+            expHtmlModal += `• ${e.displayText}<br>`;
+          });
+          expHtmlModal += `</div>`;
+        }
 
         let rincianLengkap = rincianStr;
-        if (expStrFormatted) {
-          rincianLengkap += ` (Exp: ${expStrFormatted})`;
+        if (expTextFormatted) {
+          rincianLengkap += `\n   ⏳ ${expTextFormatted}`;
         }
 
         itemsPayload.push({
           namaBarang: item.namaBarang,
           rincianText: rincianLengkap,
           totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs'),
-          expDate: expStrFormatted
+          expDate: expTextFormatted
         });
 
         tbodyHtml += `
@@ -724,7 +784,7 @@
               <div style="font-size:12px; color:#475569; margin-top:3px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:inline-block;">
                 Input: <strong>${rincianStr}</strong>
               </div>
-              ${expStrFormatted ? `<div style="font-size:11px; color:#b91c1c; margin-top:3px; font-weight:600;">⏳ Exp: ${expStrFormatted}</div>` : ''}
+              ${expHtmlModal}
             </td>
             <td class="qty-col">
               <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Total</span><br>
@@ -780,10 +840,12 @@
           
           const container = document.getElementById(`exp_container_${index}`);
           if (container) {
+            const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
             container.innerHTML = `
               <div class="exp-row">
-                <span class="exp-date-label">⏳ Exp Date:</span>
-                <input type="date" class="exp-date-input exp_field_${index}" onchange="saveDraft()">
+                <span class="exp-date-label">⏳ Exp:</span>
+                <input type="date" class="exp-date-input exp_date_${index}" onchange="saveDraft()">
+                <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
                 <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
               </div>
             `;
