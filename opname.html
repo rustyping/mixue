@@ -379,48 +379,59 @@
       return { ...item, uniqueUnits: uniqueUnits };
     });
   }
-
   function renderKatalog() {
-    const container = document.getElementById('katalogContainer');
-    if (processedKatalog.length === 0) {
-      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
-      return;
-    }
-
-    let html = '';
-    processedKatalog.forEach((item, index) => {
-      let inputsHtml = '';
-      item.uniqueUnits.forEach(u => {
-        const tagClass = `unit-tag-${u.id}`;
-
-        inputsHtml += `
-          <div class="input-unit-wrapper">
-            <span class="unit-tag ${tagClass}">${u.label}</span>
-            <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+      const container = document.getElementById('katalogContainer');
+      if (processedKatalog.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">Katalog bahan baku kosong.</div>';
+        return;
+      }
+  
+      let html = '';
+      processedKatalog.forEach((item, index) => {
+        let inputsHtml = '';
+        item.uniqueUnits.forEach(u => {
+          const tagClass = `unit-tag-${u.id}`;
+  
+          inputsHtml += `
+            <div class="input-unit-wrapper">
+              <span class="unit-tag ${tagClass}">${u.label}</span>
+              <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
+            </div>
+          `;
+        });
+  
+        // ---> PERBAIKAN: Pengecekan Exp Date dipindah ke dalam foreach di sini <---
+        let expHtml = '';
+        if (item.kategori && item.kategori.toString().trim().toLowerCase() === 'bahanbaku') {
+          expHtml = `
+            <div class="exp-date-container">
+              <span class="exp-date-label">⏳ Exp Date:</span>
+              <input type="date" id="exp_${index}" class="exp-date-input" onchange="saveDraft()">
+            </div>
+          `;
+        }
+  
+        html += `
+          <div class="item-card" id="card_${index}">
+            <div class="item-header">
+              <div class="item-name">${item.namaBarang}</div>
+              ${item.kategori ? `<span class="category-badge">${item.kategori}</span>` : ''}
+            </div>
+            <div class="item-body-row">
+              <div class="inputs-flex">${inputsHtml}</div>
+              <div class="calc-result-side">
+                <span class="total-label">Total (${item.satuan1 || 'Pcs'})</span>
+                <span class="total-val" id="totalPcs_${index}">0</span>
+              </div>
+            </div>
+            ${expHtml} <!-- ---> Disisipkan di dalam kartu item <--- -->
           </div>
         `;
       });
-
-      html += `
-        <div class="item-card" id="card_${index}">
-          <div class="item-header">
-            <div class="item-name">${item.namaBarang}</div>
-            ${item.kategori ? `<span class="category-badge">${item.kategori}</span>` : ''}
-          </div>
-          <div class="item-body-row">
-            <div class="inputs-flex">${inputsHtml}</div>
-            <div class="calc-result-side">
-              <span class="total-label">Total (${item.satuan1 || 'Pcs'})</span>
-              <span class="total-val" id="totalPcs_${index}">0</span>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-    updateCounter();
-  }
+  
+      container.innerHTML = html;
+      updateCounter();
+    }
 
   function calculateRow(index, triggerSave = true) {
     const item = processedKatalog[index];
