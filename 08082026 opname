@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stok Opname - UD. Damai / Mixue</title>
+  <title>Stok Opname - Mixue v1.08</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -37,6 +37,23 @@
     .header-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
     .header-info p { font-size: 11px; opacity: 0.9; }
     
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .version-badge {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(4px);
+    }
+    
     .btn-reset-top {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.6);
@@ -54,7 +71,6 @@
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); }
     .section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
     
-    /* Informasi Petugas Ramping (1 Baris Sejajar) */
     .info-petugas-card {
       background: var(--card-bg);
       border-radius: var(--radius);
@@ -94,7 +110,6 @@
       background-color: #ffffff;
     }
 
-    /* Layout Kartu Bahan Baku */
     .item-card { 
       background: var(--card-bg); 
       border: 1px solid var(--border); 
@@ -127,7 +142,6 @@
       text-transform: uppercase; 
     }
 
-    /* Baris Utama Input + Total disebelah kanan */
     .item-body-row {
       display: flex;
       align-items: center;
@@ -135,48 +149,148 @@
       gap: 8px;
     }
 
-    /* Grid Input Satuan Kompak */
     .inputs-flex { 
       display: flex; 
       flex-wrap: wrap; 
-      gap: 6px; 
+      gap: 8px; 
       flex: 1;
     }
 
     .input-unit-wrapper { 
-      position: relative; 
-      width: 75px; /* Lebar ringkas */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 72px;
     }
+
+    .unit-tag { 
+      font-size: 10px; 
+      font-weight: 700; 
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unit-tag-3 { background-color: #fee2e2; color: #b91c1c; }
+    .unit-tag-2 { background-color: #fef3c7; color: #92400e; }
+    .unit-tag-1 { background-color: #e0e7ff; color: #3730a3; }
 
     .input-with-tag { 
       width: 100%;
-      padding: 6px 26px 6px 8px !important; 
-      font-weight: 600; 
-      font-size: 12px; 
-      height: 32px;
-      text-align: right;
+      padding: 6px; 
+      font-weight: 700; 
+      font-size: 13px; 
+      height: 36px;
+      text-align: center;
       border: 1px solid var(--border);
       border-radius: 6px;
       background-color: #f8fafc;
       outline: none;
+      transition: all 0.2s ease;
     }
     .input-with-tag:focus {
       border-color: var(--primary);
       background-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(230, 0, 18, 0.15);
     }
 
-    .unit-tag { 
-      position: absolute; 
-      right: 6px; 
-      top: 50%; 
-      transform: translateY(-50%); 
-      font-size: 10px; 
-      font-weight: 600; 
-      color: var(--text-muted); 
-      pointer-events: none; 
+    /* Style Multiple Exp Date */
+    .exp-date-container {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .exp-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .exp-date-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
     }
 
-    /* Total Hasil Bersih Tanpa Bubble */
+    /* Custom Wrapper Format DD/MM/YYYY */
+    .exp-date-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    .exp-date-input {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text);
+      background-color: #f8fafc;
+      outline: none;
+      height: 30px;
+    }
+    .exp-date-picker-hidden {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      cursor: pointer;
+    }
+
+    .exp-qty-input {
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text);
+      background-color: #f8fafc;
+      outline: none;
+      height: 30px;
+      width: 85px;
+    }
+    .btn-exp-add {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-exp-remove {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
     .calc-result-side { 
       background: transparent; 
       padding: 0; 
@@ -212,7 +326,7 @@
     .modal-body { padding: 16px; overflow-y: auto; flex: 1; }
     .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .summary-table th { text-align: left; padding: 8px; background: #f1f5f9; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    .summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
     .summary-table td.qty-col { text-align: right; }
 
     .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #f8fafc; }
@@ -229,14 +343,16 @@
 <div class="app-container">
   <div class="header-card">
     <div class="header-info">
-      <h1>Form Stok Opname</h1>
+      <h1>Stok Opname Mixue Kebalen</h1>
       <p id="currentDateTime">Memuat tanggal & waktu...</p>
     </div>
-    <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
+    <div class="header-actions">
+      <span class="version-badge">v1.08</span>
+      <button type="button" class="btn-reset-top" onclick="resetAllInputs()">🔄 Reset</button>
+    </div>
   </div>
 
   <form id="opnameForm">
-    <!-- Informasi Petugas Ramping -->
     <div class="info-petugas-card">
       <div class="info-petugas-grid">
         <div class="form-group">
@@ -370,13 +486,33 @@
     processedKatalog.forEach((item, index) => {
       let inputsHtml = '';
       item.uniqueUnits.forEach(u => {
+        const tagClass = `unit-tag-${u.id}`;
+
         inputsHtml += `
           <div class="input-unit-wrapper">
+            <span class="unit-tag ${tagClass}">${u.label}</span>
             <input type="number" step="any" min="0" id="unit_${index}_${u.id}" class="input-with-tag" placeholder="0" oninput="calculateRow(${index})">
-            <span class="unit-tag">${u.label}</span>
           </div>
         `;
       });
+
+      let expHtml = '';
+      if (item.kategori && item.kategori.toString().trim().toLowerCase() === 'bahanbaku') {
+        const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+        expHtml = `
+          <div class="exp-date-container" id="exp_container_${index}">
+            <div class="exp-row">
+              <span class="exp-date-label">⏳ Exp:</span>
+              <div class="exp-date-wrapper">
+                <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+              </div>
+              <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
+              <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
+            </div>
+          </div>
+        `;
+      }
 
       html += `
         <div class="item-card" id="card_${index}">
@@ -391,12 +527,84 @@
               <span class="total-val" id="totalPcs_${index}">0</span>
             </div>
           </div>
+          ${expHtml}
         </div>
       `;
     });
 
     container.innerHTML = html;
     updateCounter();
+  }
+
+  // Konversi Format YYYY-MM-DD ke DD/MM/YYYY
+  function formatDateID(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  // Handler saat Tanggal Dipilih dari Calendar Pop-up
+  function handleDateChange(pickerInput, index) {
+    const wrapper = pickerInput.closest('.exp-date-wrapper');
+    const textInput = wrapper.querySelector('.exp-date-input');
+    if (pickerInput.value) {
+      textInput.value = formatDateID(pickerInput.value);
+    } else {
+      textInput.value = '';
+    }
+    saveDraft();
+  }
+
+  // Fungsi untuk Menambah Baris Input Exp Date + Kuantitas
+  function addExpRow(index, dateValue = '', qtyValue = '') {
+    const container = document.getElementById(`exp_container_${index}`);
+    if (!container) return;
+
+    const item = processedKatalog[index];
+    const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+    const formattedText = formatDateID(dateValue);
+
+    const div = document.createElement('div');
+    div.className = 'exp-row';
+    div.innerHTML = `
+      <span class="exp-date-label" style="opacity:0;">⏳ Exp:</span>
+      <div class="exp-date-wrapper">
+        <input type="text" class="exp-date-input exp_text_${index}" value="${formattedText}" placeholder="dd/mm/yyyy" readonly>
+        <input type="date" class="exp-date-picker-hidden exp_date_${index}" value="${dateValue}" onchange="handleDateChange(this, ${index})">
+      </div>
+      <input type="text" class="exp-qty-input exp_qty_${index}" value="${qtyValue}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
+      <button type="button" class="btn-exp-remove" onclick="removeExpRow(this, ${index})">-</button>
+    `;
+    container.appendChild(div);
+  }
+
+  // Fungsi untuk Menghapus Baris Exp Date
+  function removeExpRow(btn, index) {
+    btn.closest('.exp-row').remove();
+    saveDraft();
+  }
+
+  // Pengambilan Seluruh Tanggal Exp Date & Keterangannya
+  function getExpDetailsForItem(index) {
+    const textInputs = document.querySelectorAll(`.exp_text_${index}`);
+    const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
+    
+    let list = [];
+    textInputs.forEach((inp, i) => {
+      if (inp.value) {
+        const formattedDate = inp.value; // Sudah berformat DD/MM/YYYY
+        const qtyText = qtyInputs[i] ? qtyInputs[i].value.trim() : '';
+        list.push({
+          date: formattedDate,
+          qty: qtyText,
+          displayText: qtyText ? `exp ${formattedDate} ${qtyText}` : `exp ${formattedDate}`
+        });
+      }
+    });
+    return list;
   }
 
   function calculateRow(index, triggerSave = true) {
@@ -445,7 +653,8 @@
     const draft = {
       checker: document.getElementById('checker').value,
       catatanUmum: document.getElementById('catatanUmum').value,
-      inputs: {}
+      inputs: {},
+      expDetails: {}
     };
 
     processedKatalog.forEach((item, index) => {
@@ -459,6 +668,24 @@
         }
       });
       if (hasValue) draft.inputs[item.namaBarang] = itemInputs;
+
+      // Simpan Array Exp Date + Qty
+      const dateInputs = document.querySelectorAll(`.exp_date_${index}`);
+      const qtyInputs = document.querySelectorAll(`.exp_qty_${index}`);
+      let expList = [];
+
+      dateInputs.forEach((inp, i) => {
+        if (inp.value) {
+          expList.push({
+            date: inp.value,
+            qty: qtyInputs[i] ? qtyInputs[i].value : ''
+          });
+        }
+      });
+
+      if (expList.length > 0) {
+        draft.expDetails[item.namaBarang] = expList;
+      }
     });
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -485,6 +712,23 @@
             });
             calculateRow(index, false);
           }
+
+          // Restore Exp Details
+          if (draft.expDetails && draft.expDetails[item.namaBarang]) {
+            const expList = draft.expDetails[item.namaBarang];
+            const firstPicker = document.querySelector(`.exp_date_${index}`);
+            const firstQty = document.querySelector(`.exp_qty_${index}`);
+
+            if (firstPicker && expList[0]) {
+              firstPicker.value = expList[0].date;
+              handleDateChange(firstPicker, index);
+            }
+            if (firstQty && expList[0]) firstQty.value = expList[0].qty;
+
+            for (let i = 1; i < expList.length; i++) {
+              addExpRow(index, expList[i].date, expList[i].qty);
+            }
+          }
         });
       }
     } catch(e) {
@@ -500,6 +744,23 @@
         const card = document.getElementById(`card_${index}`);
         if (card) card.classList.remove('filled');
         document.getElementById(`totalPcs_${index}`).innerText = `0`;
+        
+        // Reset Exp Container ke bentuk default
+        const container = document.getElementById(`exp_container_${index}`);
+        if (container) {
+          const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+          container.innerHTML = `
+            <div class="exp-row">
+              <span class="exp-date-label">⏳ Exp:</span>
+              <div class="exp-date-wrapper">
+                <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+              </div>
+              <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
+              <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
+            </div>
+          `;
+        }
       });
       updateCounter();
     }
@@ -531,10 +792,32 @@
       if (totalPcs > 0) {
         const rincianStr = rincian.join(" ") || `0 ${item.satuan1 || 'Pcs'}`;
 
+        // Mengambil semua detail Exp Date + Qty (dengan format DD/MM/YYYY)
+        const expDetails = getExpDetailsForItem(index);
+        
+        // Format Teks Exp Date
+        let expTextFormatted = expDetails.map(e => e.displayText).join(", ");
+        
+        // Format Teks Modal HTML (Baris per baris)
+        let expHtmlModal = '';
+        if (expDetails.length > 0) {
+          expHtmlModal = `<div style="font-size:11px; color:#b91c1c; margin-top:4px; font-weight:600; line-height:1.4;">⏳ Exp Date:<br>`;
+          expDetails.forEach(e => {
+            expHtmlModal += `• ${e.displayText}<br>`;
+          });
+          expHtmlModal += `</div>`;
+        }
+
+        let rincianLengkap = rincianStr;
+        if (expTextFormatted) {
+          rincianLengkap += `\n   ⏳ ${expTextFormatted}`;
+        }
+
         itemsPayload.push({
           namaBarang: item.namaBarang,
-          rincianText: rincianStr,
-          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs')
+          rincianText: rincianLengkap,
+          totalSatuan1: totalPcs + " " + (item.satuan1 || 'Pcs'),
+          expDate: expTextFormatted
         });
 
         tbodyHtml += `
@@ -544,6 +827,7 @@
               <div style="font-size:12px; color:#475569; margin-top:3px; background:#f1f5f9; padding:2px 6px; border-radius:4px; display:inline-block;">
                 Input: <strong>${rincianStr}</strong>
               </div>
+              ${expHtmlModal}
             </td>
             <td class="qty-col">
               <span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Total</span><br>
@@ -596,6 +880,22 @@
           const card = document.getElementById(`card_${index}`);
           if (card) card.classList.remove('filled');
           document.getElementById(`totalPcs_${index}`).innerText = `0`;
+          
+          const container = document.getElementById(`exp_container_${index}`);
+          if (container) {
+            const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+            container.innerHTML = `
+              <div class="exp-row">
+                <span class="exp-date-label">⏳ Exp:</span>
+                <div class="exp-date-wrapper">
+                  <input type="text" class="exp-date-input exp_text_${index}" placeholder="dd/mm/yyyy" readonly>
+                  <input type="date" class="exp-date-picker-hidden exp_date_${index}" onchange="handleDateChange(this, ${index})">
+                </div>
+                <input type="text" class="exp-qty-input exp_qty_${index}" placeholder="e.g. 5 ${topUnitLabel}" oninput="saveDraft()">
+                <button type="button" class="btn-exp-add" onclick="addExpRow(${index})">+</button>
+              </div>
+            `;
+          }
         });
         updateCounter();
 
