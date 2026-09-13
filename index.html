@@ -335,7 +335,11 @@
       namaKasir: document.getElementById('namaKasir').value,
       omset: hitungTotalOmset(),
       totalPenjualan: hitungTotalItem(),
-      catatan: document.getElementById('catatan').value || '-',
+      
+      // Ambil nilai dari input teks tambahan (sesuaikan id HTML Anda jika ada)
+      "Keterangan Boneka": document.getElementById('keteranganBoneka')?.value || document.getElementById('boneka')?.value || '-',
+      "Catatan": document.getElementById('catatan')?.value || '-',
+
       itemsData: formData
     };
 
@@ -404,12 +408,12 @@
       hiddenForm.action = WEB_APP_URL; 
       hiddenForm.innerHTML = ''; 
 
-      // Metadata Dasar
+    // Metadata Dasar & Field Teks Tambahan
       for (const key in currentPayload) {
         if (key !== 'itemsData') {
           const input = document.createElement('input');
           input.type = 'hidden';
-          input.name = key;
+          input.name = key; // Akan mengirim nama "Keterangan Boneka" dan "Catatan" ke Sheet
           input.value = currentPayload[key];
           hiddenForm.appendChild(input);
         }
