@@ -144,10 +144,39 @@
       <input type="number" id="bonekaQty" placeholder="0" class="item-count">
     </div>
 
+    <!-- PENJUALAN SNACK & ITEM TAMBAHAN -->
+    <div class="section-title">🍿 Penjualan Snack & Merchandise (Qty)</div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Kacang Campur</label><input type="number" id="kacangCampur" placeholder="0" class="item-count"></div>
+      <div class="form-group"><label>Kacang & Buah Mix</label><input type="number" id="kacangBuahMix" placeholder="0" class="item-count"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Konjac Cumi Pedas</label><input type="number" id="konjacCumiPedas" placeholder="0" class="item-count"></div>
+      <div class="form-group"><label>Konjac Cumi Pedas Mala</label><input type="number" id="konjacCumiMala" placeholder="0" class="item-count"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Suka Ikan Pedas Manis</label><input type="number" id="sukaIkanPedas" placeholder="0" class="item-count"></div>
+      <div class="form-group"><label>Hahamies Sapi Panggang</label><input type="number" id="hahamiesSapi" placeholder="0" class="item-count"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>Hahamies Rumput Laut</label><input type="number" id="hahamiesNori" placeholder="0" class="item-count"></div>
+      <div class="form-group"><label>VIP Chips Rumput Laut</label><input type="number" id="vipChipsNori" placeholder="0" class="item-count"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="form-group"><label>VIP Chips Sapi Panggang</label><input type="number" id="vipChipsSapi" placeholder="0" class="item-count"></div>
+    </div>
+    
     <!-- BOX TOTAL PENJUALAN -->
     <div class="qty-total-box">
       Total Penjualan Item: <span id="totalPenjualanQty">0</span> Pcs
     </div>
+
+    
 
     <!-- CATATAN LAINNYA -->
     <div class="section-title">🎈 Catatan Tambahan</div>
@@ -288,7 +317,7 @@
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    currentPayload = {
+currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
       namaKasir: document.getElementById('namaKasir').value,
@@ -301,7 +330,8 @@
       grab: cleanNumber(document.getElementById('grab').value),
       edc: cleanNumber(document.getElementById('edc').value),
       lain: cleanNumber(document.getElementById('lain').value),
-      odong: cleanNumber(document.getElementById('odong').value),
+      
+      // Stok & Item (W - AE)
       cone: document.getElementById('cone').value,
       coneLucky: document.getElementById('coneLucky').value,
       cup400: document.getElementById('cup400').value,
@@ -312,8 +342,23 @@
       thermal2: document.getElementById('thermal2').value,
       thermal4: document.getElementById('thermal4').value,
       bonekaQty: document.getElementById('bonekaQty').value,
+      
+      // Snack Baru
+      kacangCampur: document.getElementById('kacangCampur').value,
+      kacangBuahMix: document.getElementById('kacangBuahMix').value,
+      konjacCumiPedas: document.getElementById('konjacCumiPedas').value,
+      konjacCumiMala: document.getElementById('konjacCumiMala').value,
+      sukaIkanPedas: document.getElementById('sukaIkanPedas').value,
+      hahamiesSapi: document.getElementById('hahamiesSapi').value,
+      hahamiesNori: document.getElementById('hahamiesNori').value,
+      vipChipsNori: document.getElementById('vipChipsNori').value,
+      vipChipsSapi: document.getElementById('vipChipsSapi').value,
+
       totalPenjualan: hitungTotalPenjualan(),
       boneka: document.getElementById('boneka').value,
+      
+      // Kolom AF - AI
+      odong: cleanNumber(document.getElementById('odong').value),
       catatan: document.getElementById('catatan').value
     };
 
