@@ -101,7 +101,7 @@
     </div>
 
     <div class="form-group">
-      <label>Catatan Opsional</label>
+      <label>Catatan</label>
       <textarea id="catatan" placeholder="Tulis catatan jika ada kendala, selisih, atau info tambahan..."></textarea>
     </div>
 
@@ -298,14 +298,17 @@ function renderDynamicForm(katalog) {
 function hitungTotalOmset() {
     let total = 0;
     
-    // Cari setiap blok kategori untuk menghitung subtotalnya masing-masing
     let sections = document.querySelectorAll('.section-title');
     sections.forEach(sec => {
       let subtotal = 0;
       let next = sec.nextElementSibling;
       while(next && !next.classList.contains('section-title') && !next.classList.contains('total-box')) {
-        next.querySelectorAll('.input-currency').forEach(inp => {
-          subtotal += cleanNumber(inp.value);
+        next.querySelectorAll('input').forEach(inp => {
+          let grp = Number(inp.getAttribute('data-group'));
+          // Hanya hitung jika Group === 1
+          if (grp === 1) {
+            subtotal += cleanNumber(inp.value);
+          }
         });
         let subSpan = next.querySelector('.subtotal-group-1');
         if (subSpan) {
@@ -328,8 +331,9 @@ function hitungTotalOmset() {
       let subtotalQty = 0;
       let next = sec.nextElementSibling;
       while(next && !next.classList.contains('section-title') && !next.classList.contains('qty-total-box')) {
-        next.querySelectorAll('.input-value').forEach(inp => {
+        next.querySelectorAll('input').forEach(inp => {
           let grp = Number(inp.getAttribute('data-group'));
+          // Hanya hitung jika Group === 2
           if (grp === 2) {
             subtotalQty += Number(inp.value) || 0;
           }
