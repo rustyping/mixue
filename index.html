@@ -438,7 +438,7 @@
       modalStatus.style.color = "green";
       modalStatus.innerText = "✅ Data tersimpan! Membuka WhatsApp...";
 
-      // Format WhatsApp Dinamis Berdasarkan Tipe
+// Format WhatsApp Dinamis Berdasarkan Tipe
       const d = currentPayload;
       let teksWA = `*LAPORAN KASIR MIXUE KEBALEN* 🍦\n`;
       teksWA += `----------------------------------\n`;
@@ -464,7 +464,7 @@
       teksWA += `📊 *TOTAL PENJUALAN ITEM: ${d.totalPenjualan} Pcs*\n`;
       teksWA += `----------------------------------\n\n`;
 
-      // Item Lainnya (Group 0 atau Kategori Tambahan)
+      // Item Lainnya
       let group0 = globalKatalog.filter(i => i.group !== 1 && i.group !== 2);
       if (group0.length > 0) {
         group0.forEach(i => {
@@ -477,7 +477,8 @@
       }
 
       teksWA += `🎈 *CATATAN LAINNYA:*\n`;
-      teksWA += `• Catatan: ${d.catatan}\n`;
+      teksWA += `• Keterangan Boneka: ${d["Keterangan Boneka"] || '-'}\n`;
+      teksWA += `• Catatan: ${d["Catatan"] || '-'}\n`;
       teksWA += `----------------------------------\n`;
       teksWA += `_Demikian Laporan *${d.namaKasir}*. Terima Kasih 😁_`;
 
