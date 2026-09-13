@@ -187,7 +187,7 @@
   };
 
   // --- RENDER FORM BERDASARKAN TIPE (Currency / Value / Text) ---
-  function renderDynamicForm(katalog) {
+function renderDynamicForm(katalog) {
     let grouped = {};
     katalog.forEach((item, index) => {
       let cat = item.kategori || 'Lainnya';
@@ -209,6 +209,20 @@
           html += `<div class="form-group"></div>`;
         }
         html += `</div>`;
+      }
+
+      // Deteksi apakah kategori ini berisi Group 1 (Currency) atau Group 2 (Value)
+      let hasGroup1 = items.some(i => i.group === 1);
+      let hasGroup2 = items.some(i => i.group === 2);
+
+      if (hasGroup1) {
+        html += `<div style="text-align:right; font-size:0.85em; font-weight:bold; color:#cc0000; margin:-6px 0 12px 0; padding:0 4px;">
+          Subtotal ${cat}: Rp <span class="subtotal-group-1">0</span>
+        </div>`;
+      } else if (hasGroup2) {
+        html += `<div style="text-align:right; font-size:0.85em; font-weight:bold; color:#1e8449; margin:-6px 0 12px 0; padding:0 4px;">
+          Subtotal ${cat}: <span class="subtotal-group-2">0</span> Pcs
+        </div>`;
       }
     }
 
@@ -281,27 +295,54 @@
     });
   }
 
-  function hitungTotalOmset() {
+function hitungTotalOmset() {
     let total = 0;
-    document.querySelectorAll('.input-currency').forEach(input => {
-      let grp = Number(input.getAttribute('data-group'));
-      if (grp === 1) {
-        total += cleanNumber(input.value);
+    
+    // Cari setiap blok kategori untuk menghitung subtotalnya masing-masing
+    let sections = document.querySelectorAll('.section-title');
+    sections.forEach(sec => {
+      let subtotal = 0;
+      let next = sec.nextElementSibling;
+      while(next && !next.classList.contains('section-title') && !next.classList.contains('total-box')) {
+        next.querySelectorAll('.input-currency').forEach(inp => {
+          subtotal += cleanNumber(inp.value);
+        });
+        let subSpan = next.querySelector('.subtotal-group-1');
+        if (subSpan) {
+          subSpan.innerText = subtotal.toLocaleString('id-ID');
+        }
+        next = next.nextElementSibling;
       }
+      total += subtotal;
     });
-    // Menambahkan elemen tambahan seperti odong jika masuk group 1 (jika ada di katalog)
+
     document.getElementById('totalOmset').innerText = total.toLocaleString('id-ID');
     return total;
   }
 
   function hitungTotalItem() {
     let totalQty = 0;
-    document.querySelectorAll('.input-value').forEach(input => {
-      let grp = Number(input.getAttribute('data-group'));
-      if (grp === 2) {
-        totalQty += Number(input.value) || 0;
+
+    let sections = document.querySelectorAll('.section-title');
+    sections.forEach(sec => {
+      let subtotalQty = 0;
+      let next = sec.nextElementSibling;
+      while(next && !next.classList.contains('section-title') && !next.classList.contains('qty-total-box')) {
+        next.querySelectorAll('.input-value').forEach(inp => {
+          let grp = Number(inp.getAttribute('data-group'));
+          if (grp === 2) {
+            subtotalQty += Number(inp.value) || 0;
+          }
+        });
+        let subSpan = next.querySelector('.subtotal-group-2');
+        if (subSpan) {
+          subSpan.innerText = subtotalQty.toLocaleString('id-ID');
+        }
+        next = next.nextElementSibling;
       }
+      totalQty += subtotalQty;
     });
+
     document.getElementById('totalPenjualanQty').innerText = totalQty.toLocaleString('id-ID');
     return totalQty;
   }
