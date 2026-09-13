@@ -497,8 +497,13 @@
       });
 
       let expHtml = '';
-      if (item.kategori && item.kategori.toString().trim().toLowerCase() === 'bahanbaku') {
+      // Ambil nama kategori dan ubah ke huruf kecil untuk pengecekan
+      let kategoriItem = item.kategori ? item.kategori.toString().trim().toLowerCase() : '';
+      
+      // Jika kategori adalah 'bahanbaku' ATAU 'snack', maka tampilkan kolom Exp Date
+      if (kategoriItem === 'bahanbaku' || kategoriItem === 'snack') {
         const topUnitLabel = item.uniqueUnits.length > 0 ? item.uniqueUnits[0].label : 'Dus';
+        
         expHtml = `
           <div class="exp-date-container" id="exp_container_${index}">
             <div class="exp-row">
