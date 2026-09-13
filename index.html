@@ -310,7 +310,7 @@
     return "Rp " + (Number(val) || 0).toLocaleString('id-ID');
   }
 
-  // --- KLIK LANJUT / BUKA SUMMARY ---
+// --- KLIK LANJUT / BUKA SUMMARY ---
   document.getElementById('kasirForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -329,6 +329,10 @@
       }
     });
 
+    // Ambil nilai dari input teks tambahan dengan aman
+    const valBoneka = document.getElementById('boneka') ? document.getElementById('boneka').value.trim() : '-';
+    const valCatatan = document.getElementById('catatan') ? document.getElementById('catatan').value.trim() : '-';
+
     currentPayload = {
       hari: document.getElementById('hari').value,
       tanggal: document.getElementById('tanggal').value,
@@ -336,9 +340,9 @@
       omset: hitungTotalOmset(),
       totalPenjualan: hitungTotalItem(),
       
-      // Ambil nilai dari input teks tambahan (sesuaikan id HTML Anda jika ada)
-      "Keterangan Boneka": document.getElementById('keteranganBoneka')?.value || document.getElementById('boneka')?.value || '-',
-      "Catatan": document.getElementById('catatan')?.value || '-',
+      // Kirim dengan nama persis seperti judul kolom di Google Sheet
+      "Keterangan Boneka": valBoneka !== "" ? valBoneka : "-",
+      "Catatan": valCatatan !== "" ? valCatatan : "-",
 
       itemsData: formData
     };
